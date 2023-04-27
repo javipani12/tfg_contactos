@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // Este enum nos servirá para saber el estado de los permisos
 enum CurrentStatus {
-  noPermissions,        // Todavía no se han establecido o no los permisos
+  noPermissions,        // Todavía no se han solicitado los permisos
   granted,              // Permitidos
   denied,               // No permitidos
   deniedPermanently,    // No permitidos de manera permanente
@@ -27,9 +27,15 @@ class ContactPermissions extends ChangeNotifier {
   // Aquí almacenaremos los contactos de manera temporal
   // para posteriormente subirlos a BBDD si es la primera
   // vez que se usa la aplicación
-  late List<Contact> contacts = [];
+  List<Contact> contacts = [];
+
+  // Variable para saber si la aplicación ya tiene los permisos aceptados
   bool hasPermission = false;
-  late bool isLoading;
+
+  // Variable que se usará para el control
+  // de la carga de contactos
+  bool isLoading = true;
+
 
   // Método para comprobar si la aplicación ya tiene los 
   // permisos concedidos
@@ -57,16 +63,12 @@ class ContactPermissions extends ChangeNotifier {
     bool permission = prefs.getBool('hasPermission') ?? false;
 
     if(permission) {
-      storeContacts();
       hasPermission = permission;
       currentStatus = CurrentStatus.granted;
       return true;
     } else {
-
       result = await Permission.contacts.request();
-    
       if( result == PermissionStatus.granted){
-        storeContacts();
         currentStatus = CurrentStatus.granted;
         prefs.setBool('hasPermission', true);
         permission = prefs.getBool('hasPermission') ?? false;
@@ -91,12 +93,11 @@ class ContactPermissions extends ChangeNotifier {
   Future<void> storeContacts() async {
     isLoading = true;
     notifyListeners();
+
     final Iterable<Contact> obtainedContacts = await ContactsService.getContacts();
     contacts = obtainedContacts.toList();
-    if(contacts.isNotEmpty) {
-      isLoading = false;
-      notifyListeners();
-    }
-    
+
+    isLoading = false;
+    notifyListeners();
   }
 }

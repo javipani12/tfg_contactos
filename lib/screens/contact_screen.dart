@@ -1,9 +1,6 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-import 'package:contacts_service/contacts_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tfg_contactos/models/models.dart';
 
@@ -35,6 +32,10 @@ class _ContactScreenState extends State<ContactScreen> with WidgetsBindingObserv
     super.dispose();
   }
 
+  // Este código se usa cuando el usuario ha denegado los
+  // permisos de manera permanente. Detecta si los permisos se han
+  // otorgado cuando el usuario vuelve de la pantalla
+  // del sistema de permisos
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if(state == AppLifecycleState.resumed &&
@@ -48,6 +49,26 @@ class _ContactScreenState extends State<ContactScreen> with WidgetsBindingObserv
     }
   }
 
+  // Método para inicializar hasPermission, de manera
+  // que podemos saber el estado de los permisos
+  // desde que inicia la aplicación
+  Future<void> initializeHasPermissions() async {
+    hasPermission = await _permissions.initializeHasPermissions();
+  }
+
+  // Método que solicita los permisos al usuario, 
+  // si este los otorga, se cargan los contactos
+  Future<void> _checkPermissions() async {
+    final hasContactPermission = await _permissions.requestContactPermission();
+    if(hasContactPermission) {
+      try {
+        await _permissions.storeContacts();
+      } on Exception catch (e) {
+        debugPrint('Error al cargar los contactos: $e');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
@@ -56,6 +77,8 @@ class _ContactScreenState extends State<ContactScreen> with WidgetsBindingObserv
         builder: (context, value, child) {
           Widget widget;
 
+          // Comprobamos todos los posibles casos, en función
+          // del que sea, el widget será uno u otro
           if(hasPermission) {
             widget = ContactLoaded(permissions: _permissions,);
           } else {
@@ -85,24 +108,11 @@ class _ContactScreenState extends State<ContactScreen> with WidgetsBindingObserv
       )
     );
   }
-
-  Future<void> _checkPermissions() async {
-    final hasContactPermission = await _permissions.requestContactPermission();
-    if(hasContactPermission) {
-      try {
-        await _permissions.storeContacts();
-      } on Exception catch (e) {
-        debugPrint('Error al cargar los contactos: $e');
-      }
-    }
-  }
-
-  Future<void> initializeHasPermissions() async {
-    hasPermission = await _permissions.initializeHasPermissions();
-  }
 }
 
-
+// Widget que se utiliza cuando aún no se han solicitado
+// los permisos. Consiste en un botón con un evento asociado 
+// de solicitud de permisos
 class LoadContactsButton extends StatelessWidget {
   
   final VoidCallback onPressed;
@@ -115,13 +125,16 @@ class LoadContactsButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Center(
     child: ElevatedButton(
-      child: const Text('Cargar Contactos'),
       onPressed: onPressed,
+      child: const Text('Cargar Contactos'),
     ),
   );
 }
 
-
+// Widget muy similar al anterior, se usa en caso de
+// que se hayan denegado los permisos una o dos veces.
+// Muestra un mensaje de por qué la aplicación necesita 
+// los permisos
 class AskPermissionsButton extends StatelessWidget {
 
   final bool isPermanent;
@@ -162,6 +175,8 @@ class AskPermissionsButton extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
           ),
+          // Si es la segunda vez que se deniegan los permisos
+          // aparecerá este Container
           if (isPermanent)
             Container(
               padding: const EdgeInsets.only(
@@ -178,6 +193,9 @@ class AskPermissionsButton extends StatelessWidget {
             padding: const EdgeInsets.only(
                 left: 16.0, top: 24.0, right: 16.0, bottom: 24.0),
             child: ElevatedButton(
+              // En función de si es la primera o segunda que se deniegan los permisos,
+              // aparecerá un mensaje u otro en el botón, así como el evento asociado
+              // será diferente
               child: Text(isPermanent ? 'Abrir Ajustes' : 'Cargar Contactos'),
               onPressed: () => isPermanent ? openAppSettings() : onPressed(),
             ),
@@ -188,7 +206,8 @@ class AskPermissionsButton extends StatelessWidget {
   }
 }
 
-
+// Widget que simula una pantalla de carga
+// que será usado mientras se cargan los contactos
 class ContactsLoading extends StatelessWidget {
    
   const ContactsLoading({
@@ -205,7 +224,7 @@ class ContactsLoading extends StatelessWidget {
   }
 }
 
-
+// Widget usado para cuando tenemos los contactos cargados
 class ContactLoaded extends StatelessWidget {
 
   final ContactPermissions permissions;
@@ -224,6 +243,8 @@ class ContactLoaded extends StatelessWidget {
       return Column(
         children: [ 
           Expanded(
+            // Con el ListView.builder crearemos por cada
+            // elemento de la lista un Card
             child: ListView.builder(
               itemCount: permissions.contacts.length,
               itemBuilder: (BuildContext context, int index) {
@@ -236,6 +257,8 @@ class ContactLoaded extends StatelessWidget {
                   color: Colors.amber,
                   child: Column(
                     children: [
+                      // Solamente obtendremos el nombre del contacto y su
+                      // número de teléfono
                       Text(contact.displayName ?? ''),
                       Text(contact.phones![0].value ?? ''),
                     ],
