@@ -1,0 +1,1 @@
+export 'package:tfg_contactos/screens/contact_screen.dart';

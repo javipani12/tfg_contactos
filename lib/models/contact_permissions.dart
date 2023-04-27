@@ -6,14 +6,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // Este enum nos servirá para saber el estado de los permisos
 enum CurrentStatus {
+  noPermissions,        // Todavía no se han establecido o no los permisos
   granted,              // Permitidos
   denied,               // No permitidos
   deniedPermanently,    // No permitidos de manera permanente
-  storedContacs,        // Los contactos han sido guardados
 }
 
 class ContactPermissions extends ChangeNotifier {
-  CurrentStatus _currentStatus = CurrentStatus.denied;
+  CurrentStatus _currentStatus = CurrentStatus.noPermissions;
 
   CurrentStatus get currentStatus => _currentStatus;
 
@@ -25,23 +25,62 @@ class ContactPermissions extends ChangeNotifier {
   }
 
   // Aquí almacenaremos los contactos de manera temporal
-  // para posteriormente subirlos a BBDD 
-  List<Contact>? contacts;
+  // para posteriormente subirlos a BBDD si es la primera
+  // vez que se usa la aplicación
+  late List<Contact> contacts = [];
+  bool hasPermission = false;
+  late bool isLoading;
 
-  // Método para solicitar los permisos de contactos al usuario
-  // y saber en qué estado se encuentran los permisos
-  Future<bool> requestContactPermission() async {
-    PermissionStatus result;
+  // Método para comprobar si la aplicación ya tiene los 
+  // permisos concedidos
+  Future<bool> initializeHasPermissions() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool permission = prefs.getBool('hasPermission') ?? false;
 
-    result = await Permission.contacts.request();
-    
-    if( result.isGranted ){
+    if(permission) {
+      storeContacts();
+      hasPermission = permission;
       currentStatus = CurrentStatus.granted;
       return true;
-    } else if( Platform.isIOS || result.isPermanentlyDenied ) {
-      currentStatus = CurrentStatus.deniedPermanently;
+    }
+
+    return false;
+  }
+
+  // Método para solicitar los permisos de contactos al usuario
+  // y saber en qué estado se encuentran los permisos.
+  // Si los permisos ya se han otorgado anteriormente,
+  // no se solicitarán de nuevo
+  Future<bool> requestContactPermission() async {
+    PermissionStatus result;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool permission = prefs.getBool('hasPermission') ?? false;
+
+    if(permission) {
+      storeContacts();
+      hasPermission = permission;
+      currentStatus = CurrentStatus.granted;
+      return true;
     } else {
-      currentStatus = CurrentStatus.denied;
+
+      result = await Permission.contacts.request();
+    
+      if( result == PermissionStatus.granted){
+        storeContacts();
+        currentStatus = CurrentStatus.granted;
+        prefs.setBool('hasPermission', true);
+        permission = prefs.getBool('hasPermission') ?? false;
+        hasPermission = permission;
+        return true;
+      } else if( Platform.isIOS || result == PermissionStatus.permanentlyDenied ) {
+        currentStatus = CurrentStatus.deniedPermanently;
+        prefs.setBool('hasPermission', false);
+        hasPermission = permission;hasPermission = permission;
+      } else {
+        currentStatus = CurrentStatus.denied;
+        prefs.setBool('hasPermission', false);
+        hasPermission = permission;
+      }
     }
 
     return false;
@@ -50,13 +89,14 @@ class ContactPermissions extends ChangeNotifier {
   // Método para almacenar los contactos que hay en el teléfono
   // si se han otorgado los permisos
   Future<void> storeContacts() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    if(currentStatus == CurrentStatus.granted) {
-      prefs.setBool('hasPermission', true);
-      final Iterable<Contact> obtainedContacts = await ContactsService.getContacts();
-      contacts = obtainedContacts.toList();
-      currentStatus = CurrentStatus.storedContacs;
+    isLoading = true;
+    notifyListeners();
+    final Iterable<Contact> obtainedContacts = await ContactsService.getContacts();
+    contacts = obtainedContacts.toList();
+    if(contacts.isNotEmpty) {
+      isLoading = false;
+      notifyListeners();
     }
+    
   }
 }
