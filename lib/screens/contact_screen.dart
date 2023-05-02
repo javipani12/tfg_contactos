@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tfg_contactos/models/models.dart';
+import 'package:tfg_contactos/services/services.dart';
 
 class ContactScreen extends StatefulWidget {
    
@@ -25,6 +25,7 @@ class _ContactScreenState extends State<ContactScreen> with WidgetsBindingObserv
     WidgetsBinding.instance.addObserver(this);
     _permissions = ContactPermissions();
     initializeHasPermissions();
+    
   }
 
   @override dispose() {

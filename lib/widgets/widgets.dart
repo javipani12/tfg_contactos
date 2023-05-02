@@ -1,0 +1,1 @@
+export 'package:tfg_contactos/widgets/device_token.dart';
