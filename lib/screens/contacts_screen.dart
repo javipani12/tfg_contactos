@@ -25,7 +25,6 @@ class _ContactScreenState extends State<ContactScreen> with WidgetsBindingObserv
     WidgetsBinding.instance.addObserver(this);
     _permissions = ContactPermissions();
     initializeHasPermissions();
-    
   }
 
   @override dispose() {

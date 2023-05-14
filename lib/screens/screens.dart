@@ -1,1 +1,1 @@
-export 'package:tfg_contactos/screens/contact_screen.dart';
+export 'package:tfg_contactos/screens/contacts_screen.dart';
