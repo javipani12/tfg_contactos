@@ -11,24 +11,27 @@ class LoginRegisterScreen extends StatelessWidget {
   const LoginRegisterScreen({super.key});
 
   @override
-  Widget build(BuildContext context)  {
+  Widget build(BuildContext context) {
 
     return ChangeNotifierProvider(
-      create: (_) => UserLoginRegisterFormProvider(),
-      child: _LoginRegisterBody(),
+      create: (_) {
+        return UserLoginRegisterFormProvider();
+      },
+      child: const _LoginRegisterBody(),
     );
   }
 }
 
 class _LoginRegisterBody extends StatelessWidget {
   const _LoginRegisterBody({
-    super.key, 
-  });
+    Key? key,
+  }) : super(key: key);
+
 
   @override
   Widget build(BuildContext context) {
 
-    final loginRegisterForm = Provider.of<UserLoginRegisterFormProvider>(context);
+    final usersProvider = Provider.of<UserLoginRegisterFormProvider>(context);
 
     return FutureBuilder<String>(
       // Llamada al método asíncrono
@@ -41,12 +44,12 @@ class _LoginRegisterBody extends StatelessWidget {
       
           if(deviceNumber.isNotEmpty) {
             widget = Login(
-              loginRegisterForm: loginRegisterForm,
+              loginRegisterForm: usersProvider,
               deviceNumber: deviceNumber,  
             );
           } else {
             widget = Register(
-              loginRegisterForm: loginRegisterForm,
+              loginRegisterForm: usersProvider,
             );
           }
       
@@ -64,19 +67,18 @@ class _LoginRegisterBody extends StatelessWidget {
 }
 
 class Login extends StatelessWidget {
-  final UserLoginRegisterFormProvider loginRegisterForm;
-  final String deviceNumber;
-
   const Login({
     Key? key,
     required this.loginRegisterForm,
     required this.deviceNumber,
   }) : super(key: key);
 
+  final UserLoginRegisterFormProvider loginRegisterForm;
+  final String deviceNumber;
+
   @override
   Widget build(BuildContext context) {
     bool isValid = loginRegisterForm.isValidLogin(deviceNumber);
-    print(isValid);
 
     if (isValid) {
       // Si el número de dispositivo es válido, redirige a la pantalla ContactScreen
@@ -97,13 +99,12 @@ class Login extends StatelessWidget {
 
 
 class Register extends StatelessWidget {
-
-  final UserLoginRegisterFormProvider loginRegisterForm;
-
   const Register({
     Key? key,
     required this.loginRegisterForm,
   }) : super(key: key);
+
+  final UserLoginRegisterFormProvider loginRegisterForm;
 
   @override
   Widget build(BuildContext context) {

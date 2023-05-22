@@ -9,13 +9,7 @@ class UsersServices extends ChangeNotifier {
   final String _baseURL = 'contactos-405d0-default-rtdb.europe-west1.firebasedatabase.app';
   // Lista donde se almacenarán los usuarios de la BBDD
   List<User> users = [];
-
-  User? selectedUser;
-
-  UsersServices(){
-    loadUsers();
-  }
-
+  
   // Método para cargar los usuarios de BBDD 
   Future <List<User>> loadUsers() async  {
 

@@ -1,24 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tfg_contactos/providers/providers.dart';
 import 'package:tfg_contactos/screens/screens.dart';
-import 'package:tfg_contactos/services/services.dart';
 
 void main() async {
-  runApp(AppState());
-}
-
-class AppState extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MultiProvider(
+  runApp(
+    MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (context) => UsersServices(),
-        )
+          create: (context) => UserLoginRegisterFormProvider(),
+          lazy: false,
+        ),
       ],
       child: MyApp(),
-    );
-  }
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

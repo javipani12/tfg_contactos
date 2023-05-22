@@ -9,10 +9,6 @@ class ContactServices extends ChangeNotifier {
   final String _baseURL = 'contactos-405d0-default-rtdb.europe-west1.firebasedatabase.app';
   final List<Contact> contacts = [];
 
-  ContactServices(){
-    loadContacts();
-  }
-
   Future <List<Contact>> loadContacts() async  {
     final url = Uri.https(_baseURL, 'contactos.json');
     final resp = await http.get(url);
