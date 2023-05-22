@@ -13,9 +13,9 @@ class Contact {
         this.id,
     });
 
-    factory Contact.fromRawJson(String str) => Contact.fromMap(json.decode(str));
+    factory Contact.fromJson(String str) => Contact.fromMap(json.decode(str));
 
-    String toRawJson() => json.encode(toJson());
+    String toJson() => json.encode(toMap());
 
     factory Contact.fromMap(Map<String, dynamic> json) => Contact(
         idUsuario: json["idUsuario"],
@@ -23,7 +23,7 @@ class Contact {
         telefono: json["telefono"],
     );
 
-    Map<String, dynamic> toJson() => {
+    Map<String, dynamic> toMap() => {
         "idUsuario": idUsuario,
         "nombre": nombre,
         "telefono": telefono,

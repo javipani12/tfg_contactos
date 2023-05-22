@@ -17,5 +17,4 @@ class DeviceNumber {
     return phoneNumber;
   }
 
-
 }

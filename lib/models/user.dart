@@ -11,16 +11,16 @@ class User {
         this.id,
     });
 
-    factory User.fromRawJson(String str) => User.fromMap(json.decode(str));
+    factory User.fromJson(String str) => User.fromMap(json.decode(str));
 
-    String toRawJson() => json.encode(toJson());
+    String toJson() => json.encode(toMap());
 
     factory User.fromMap(Map<String, dynamic> json) => User(
         clave: json["clave"],
         telefono: json["telefono"],
     );
 
-    Map<String, dynamic> toJson() => {
+    Map<String, dynamic> toMap() => {
         "clave": clave,
         "telefono": telefono,
     };

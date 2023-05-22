@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:tfg_contactos/models/models.dart';
 import 'package:http/http.dart' as http;
@@ -9,15 +8,17 @@ class UsersServices extends ChangeNotifier {
   // URL de la BBDD
   final String _baseURL = 'contactos-405d0-default-rtdb.europe-west1.firebasedatabase.app';
   // Lista donde se almacenarán los usuarios de la BBDD
-  final List<User> users = [];
+  List<User> users = [];
 
-  // Constructor de la clase
+  User? selectedUser;
+
   UsersServices(){
     loadUsers();
   }
 
   // Método para cargar los usuarios de BBDD 
   Future <List<User>> loadUsers() async  {
+
     final url = Uri.https(_baseURL, 'usuarios.json');
     final resp = await http.get(url);
 

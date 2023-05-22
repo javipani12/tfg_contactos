@@ -17,5 +17,4 @@ class DevicePass {
     return pass;
   }
 
-
 }

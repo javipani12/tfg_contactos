@@ -1,8 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:tfg_contactos/screens/screens.dart';
+import 'package:tfg_contactos/services/services.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  runApp(AppState());
+}
+
+class AppState extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => UsersServices(),
+        )
+      ],
+      child: MyApp(),
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -17,7 +33,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const ContactScreen(),
+      home: const LoginRegisterScreen(),
     );
   }
 }
