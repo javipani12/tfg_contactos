@@ -101,6 +101,7 @@ class _ContactScreenState extends State<ContactScreen> with WidgetsBindingObserv
           return Scaffold(
             appBar: AppBar(
               title: const Text('Contactos'),
+              automaticallyImplyLeading: false,
             ),
             body: widget,
           );

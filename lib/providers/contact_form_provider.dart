@@ -4,7 +4,9 @@ import 'package:tfg_contactos/services/services.dart';
 
 class ContactFormProvider extends ChangeNotifier {
 
+  // Clave para la validación del formulario
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  // Instancia del servicio de Contactos
   ContactServices contactServices = ContactServices();
   Contact? contact;
 
@@ -12,16 +14,24 @@ class ContactFormProvider extends ChangeNotifier {
     loadContacts();
   }
 
-  bool _contactsLoaded = false; // Variable para rastrear si los usuarios se han cargado
+  // Variable para rastrear si los Contactos se han cargado
+  bool _contactsLoaded = false; 
 
+  // Método que hace uso del método del servicio de Contactos
+  // para cargar estos desde BBDD
   void loadContacts() async {
-    await contactServices.loadContacts(); // Cargar los usuarios desde algún servicio o fuente de datos
-    _contactsLoaded = true; // Marcar los usuarios como cargados
-    notifyListeners(); // Notificar a los consumidores del proveedor sobre el cambio
+    await contactServices.loadContacts();
+    // Marcamos los Contactos como cargados
+    _contactsLoaded = true;
+    // Notificamos a los consumidores del proveedor sobre el cambio 
+    notifyListeners();
   }
 
-  bool get usersLoaded => _contactsLoaded; // Getter para verificar si los usuarios se han cargado
+  // Getter para verificar si los contactos se han cargado
+  bool get usersLoaded => _contactsLoaded; 
 
+  // Método para validar el formulario de creación o edición
+  // de usuario
   bool isValidForm() {
     return formKey.currentState?.validate() ?? false;
   }

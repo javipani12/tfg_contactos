@@ -11,6 +11,10 @@ void main() async {
           create: (context) => UserLoginRegisterFormProvider(),
           lazy: false,
         ),
+        ChangeNotifierProvider(
+          create: (context) => ContactFormProvider(),
+          lazy: false,
+        ),
       ],
       child: MyApp(),
     ),

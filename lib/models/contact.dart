@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+// Clase que sirve como modelo para adaptar la tabla 
+// de Contactos de Firebase a código
 class Contact {
     int idUsuario;
     String nombre;

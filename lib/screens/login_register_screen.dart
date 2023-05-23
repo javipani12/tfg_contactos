@@ -41,25 +41,28 @@ class _LoginRegisterBody extends StatelessWidget {
           // Valor obtenido del Future
           String deviceNumber = snapshot.data!;
           Widget widget;
-      
+
+          // En función del valor, mostramos una ventana u otra
           if(deviceNumber.isNotEmpty) {
             widget = Login(
-              loginRegisterForm: usersProvider,
+              usersProvider: usersProvider,
               deviceNumber: deviceNumber,  
             );
           } else {
             widget = Register(
-              loginRegisterForm: usersProvider,
+              usersProvider: usersProvider,
             );
           }
       
           return widget;
         } else if (snapshot.hasError) {
           // Manejar el error en caso de que ocurra
-          return Container();
+          return const ErrorScreen(
+            errorCode: 1
+          );
         } else {
           // Muestra un indicador de carga mientras se espera la respuesta
-          return CircularProgressIndicator();
+          return const CircularProgressIndicator();
         }
       },
     );
@@ -69,29 +72,24 @@ class _LoginRegisterBody extends StatelessWidget {
 class Login extends StatelessWidget {
   const Login({
     Key? key,
-    required this.loginRegisterForm,
+    required this.usersProvider,
     required this.deviceNumber,
   }) : super(key: key);
 
-  final UserLoginRegisterFormProvider loginRegisterForm;
+  final UserLoginRegisterFormProvider usersProvider;
   final String deviceNumber;
 
   @override
   Widget build(BuildContext context) {
-    bool isValid = loginRegisterForm.isValidLogin(deviceNumber);
+    bool isValid = usersProvider.isValidLogin(deviceNumber);
 
     if (isValid) {
       // Si el número de dispositivo es válido, redirige a la pantalla ContactScreen
-      return ContactScreen();
+      return const ContactScreen();
     } else {
       // Si el número de dispositivo no es válido, muestra un mensaje de error en pantalla
-      return Scaffold(
-        body: Center(
-          child: Text(
-            'Error: El número de dispositivo no es válido',
-            style: TextStyle(fontSize: 16),
-          ),
-        ),
+      return const ErrorScreen(
+        errorCode: 2
       );
     }
   }
@@ -101,10 +99,10 @@ class Login extends StatelessWidget {
 class Register extends StatelessWidget {
   const Register({
     Key? key,
-    required this.loginRegisterForm,
+    required this.usersProvider,
   }) : super(key: key);
 
-  final UserLoginRegisterFormProvider loginRegisterForm;
+  final UserLoginRegisterFormProvider usersProvider;
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +114,7 @@ class Register extends StatelessWidget {
         title: const Text('Contactos'),
       ),
       body: Form(
-        key: loginRegisterForm.formKey,
+        key: usersProvider.formKey,
         child: Column(
           children: [
             TextFormField(
@@ -124,7 +122,7 @@ class Register extends StatelessWidget {
               onChanged: (value) {
                 phoneNumber = value;
               },
-              decoration: InputDecoration(hintText: 'Teléfono'),
+              decoration: const InputDecoration(hintText: 'Teléfono'),
               validator: (value) {
                 if (value!.length != 9) {
                   return 'La longitud debe ser 9';
@@ -134,8 +132,8 @@ class Register extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () async {
-                if (loginRegisterForm.formKey.currentState?.validate() == true) {
-                  final isValidPhoneNumber = loginRegisterForm.isValidRegister(phoneNumber);
+                if (usersProvider.isValidForm()) {
+                  final isValidPhoneNumber = usersProvider.isValidRegister(phoneNumber);
                   switch (isValidPhoneNumber) {
                     case 0:
                       await DeviceNumber.setNumber(phoneNumber);
@@ -145,46 +143,117 @@ class Register extends StatelessWidget {
                         clave: pass, 
                         telefono: phoneNumber,
                       );
-                      loginRegisterForm.usersServices.createUser(user);
+                      usersProvider.usersServices.createUser(user);
                       // Navegar a la pantalla ContactScreen
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => ContactScreen()),
+                        MaterialPageRoute(builder: (context) => const ContactScreen()),
                       );
                       break;
                     case 1:
-                      User user = loginRegisterForm.getUser(phoneNumber);
-                      await DeviceNumber.setNumber(user.telefono);
-                      await DevicePass.setPass(user.clave);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => ContactScreen()),
-                      );
-                    break;
-                    default:
-                      // Mostrar mensaje de error
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: Text('Error'),
-                          content: Text('El número de teléfono ya existe en la base de datos.'),
-                          actions: [
-                            ElevatedButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: Text('Cerrar'),
-                            ),
-                          ],
-                        ),
-                      );
-                    break;
+                      mensajeContactoExistente(context).then((_) async {
+                        User user = usersProvider.getUser(phoneNumber);
+                        await DeviceNumber.setNumber(user.telefono);
+                        await DevicePass.setPass(user.clave);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const ContactScreen()),
+                        );
+                      });
+                      break;
                   }
                 }
               },
-              child: Text('Registrarse'),
+              child: const Text('Continuar'),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Future<dynamic> mensajeContactoExistente(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Número existente'),
+        content: const Text('El número de teléfono ya existe, ' 
+        'se procederá a cargar los contactos que tiene asociados.'
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Pantalla creada para mostrar el error ocurrido
+class ErrorScreen extends StatelessWidget {
+  const ErrorScreen({
+    Key? key,
+    required this.errorCode,
+  }) : super(key: key);
+
+  final int errorCode;
+
+  @override
+  Widget build(BuildContext context) {
+
+    // Posibles códigos de errores:
+    // 1: El dato persistente de la aplicación no se ha cargado bien
+    // 2: El dato persistente almacenado en la aplicación 
+    //    no coincide con ninguno en Firebase
+
+    String errorMessage = '';
+
+    switch(errorCode) {
+      case 1:
+        errorMessage = 'Se ha producido un error al cargar '
+                        'el número de teléfono del dispositivo';
+        break;
+      case 2:
+        errorMessage = 'El número de teléfono del dispositivo '
+                        'no coincide con los existentes';
+        break;
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Contactos'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.only(
+                left: 16.0,
+                top: 24.0,
+                right: 16.0,
+              ),
+              child: Text(
+                'Se ha producido un error',
+                style: Theme.of(context).textTheme.headline6,
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.only(
+                left: 16.0,
+                top: 24.0,
+                right: 16.0,
+              ),
+              child: Text(
+                errorMessage,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ]
+        )
+      )
     );
   }
 }
