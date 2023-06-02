@@ -8,10 +8,14 @@ class ContactFormProvider extends ChangeNotifier {
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   // Instancia del servicio de Contactos
   ContactServices contactServices = ContactServices();
-  Contact? contact;
+  MyContact? contact;
 
   ContactFormProvider(){
     loadContacts();
+  }
+
+  void notifyChanges() {
+    notifyListeners();
   }
 
   // Variable para rastrear si los Contactos se han cargado

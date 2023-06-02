@@ -90,7 +90,7 @@ class ContactPermissions extends ChangeNotifier {
   
   // Método para almacenar los contactos que hay en el teléfono
   // si se han otorgado los permisos
-  Future<void> storeContacts() async {
+  Future<List<Contact>> storeContacts() async {
     isLoading = true;
     notifyListeners();
 
@@ -99,5 +99,7 @@ class ContactPermissions extends ChangeNotifier {
 
     isLoading = false;
     notifyListeners();
+
+    return contacts;
   }
 }

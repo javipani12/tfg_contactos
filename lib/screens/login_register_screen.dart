@@ -8,22 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:tfg_contactos/widgets/widgets.dart';
 
 class LoginRegisterScreen extends StatelessWidget {
-  const LoginRegisterScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-
-    return ChangeNotifierProvider(
-      create: (_) {
-        return UserLoginRegisterFormProvider();
-      },
-      child: const _LoginRegisterBody(),
-    );
-  }
-}
-
-class _LoginRegisterBody extends StatelessWidget {
-  const _LoginRegisterBody({
+  const LoginRegisterScreen({
     Key? key,
   }) : super(key: key);
 
@@ -31,7 +16,7 @@ class _LoginRegisterBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final usersProvider = Provider.of<UserLoginRegisterFormProvider>(context);
+    UserLoginRegisterFormProvider usersProvider = Provider.of<UserLoginRegisterFormProvider>(context);
 
     return FutureBuilder<String>(
       // Llamada al método asíncrono
@@ -147,7 +132,9 @@ class Register extends StatelessWidget {
                       // Navegar a la pantalla ContactScreen
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const ContactScreen()),
+                        MaterialPageRoute(
+                          builder: (context) => const ContactScreen()
+                        ),
                       );
                       break;
                     case 1:
@@ -157,7 +144,9 @@ class Register extends StatelessWidget {
                         await DevicePass.setPass(user.clave);
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const ContactScreen()),
+                          MaterialPageRoute(
+                            builder: (context) => const ContactScreen()
+                          ),
                         );
                       });
                       break;
