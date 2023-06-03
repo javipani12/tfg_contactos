@@ -13,12 +13,17 @@ class UserLoginRegisterFormProvider extends ChangeNotifier {
     clave: '', 
     telefono: ''
   );
+  // Variable para rastrear si los usuarios se han cargado
+  bool _usersLoaded = false; 
 
   UserLoginRegisterFormProvider(){
     loadUsers();
   }
-  // Variable para rastrear si los usuarios se han cargado
-  bool _usersLoaded = false; 
+
+  // Método para llamar a notifyListeners
+  void notifyChanges() {
+    notifyListeners();
+  }
 
   // Método que hace uso del método creado en el servicio
   // de Usuarios para cargar estos desde Firebase

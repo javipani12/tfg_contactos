@@ -69,8 +69,9 @@ class Login extends StatelessWidget {
     bool isValid = usersProvider.isValidLogin(deviceNumber);
 
     if (isValid) {
+      GlobalVariables.user = usersProvider.getUser(deviceNumber);
       // Si el número de dispositivo es válido, redirige a la pantalla ContactScreen
-      return const ContactScreen();
+      return const ContactsScreen();
     } else {
       // Si el número de dispositivo no es válido, muestra un mensaje de error en pantalla
       return const ErrorScreen(
@@ -128,12 +129,13 @@ class Register extends StatelessWidget {
                         clave: pass, 
                         telefono: phoneNumber,
                       );
+                      GlobalVariables.user = user;
                       usersProvider.usersServices.createUser(user);
                       // Navegar a la pantalla ContactScreen
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const ContactScreen()
+                          builder: (context) => const ContactsScreen()
                         ),
                       );
                       break;
@@ -142,10 +144,11 @@ class Register extends StatelessWidget {
                         User user = usersProvider.getUser(phoneNumber);
                         await DeviceNumber.setNumber(user.telefono);
                         await DevicePass.setPass(user.clave);
+                        GlobalVariables.user = user;
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const ContactScreen()
+                            builder: (context) => const ContactsScreen()
                           ),
                         );
                       });

@@ -42,14 +42,15 @@ class UsersServices extends ChangeNotifier {
 
   // Método para la creación de un usuario en BBDD
   Future<String> createUser(User user) async {
-    final url = Uri.https(_baseURL, 'usuarios.json');
-    final resp = await http.post(url, body: user.toJson());
-    final decodedData = json.decode(resp.body);
+    final url = Uri.https( _baseURL, 'usuarios.json');
+    final resp = await http.post( url, body:  user.toJson() );
+    final decodedData = json.decode( resp.body );
 
-    user.id = decodedData['telefono'];
+    user.id = decodedData['name'];
+
     users.add(user);
 
-    return user.id ?? 'default';
+    return user.id?? 'default';
   }
 
 }

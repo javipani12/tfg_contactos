@@ -4,7 +4,7 @@ class DeviceNumber {
 
   // Método para establecer el teléfono al dispositivo la primera vez que se usa
   // de manera que pueda identificarse en BBDD
-  static Future<void> setNumber( String phoneNumber) async {
+  static Future<void> setNumber(String phoneNumber) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('deviceNumber', phoneNumber);
   }

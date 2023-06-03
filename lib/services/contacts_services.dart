@@ -45,7 +45,7 @@ class ContactServices extends ChangeNotifier {
     final resp = await http.post(url, body: contact.toJson());
     final decodedData = json.decode(resp.body);
 
-    contact.id = decodedData['nombre'];
+    contact.id = decodedData['name'];
     contacts.add(contact);
 
     return contact.id ?? 'default';

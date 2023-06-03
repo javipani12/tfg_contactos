@@ -14,6 +14,7 @@ class ContactFormProvider extends ChangeNotifier {
     loadContacts();
   }
 
+  // Método para llamar a notifyListeners
   void notifyChanges() {
     notifyListeners();
   }
@@ -27,7 +28,8 @@ class ContactFormProvider extends ChangeNotifier {
     await contactServices.loadContacts();
     // Marcamos los Contactos como cargados
     _contactsLoaded = true;
-    // Notificamos a los consumidores del proveedor sobre el cambio 
+    // Notificamos a los consumidores del proveedor 
+    // sobre el cambio 
     notifyListeners();
   }
 

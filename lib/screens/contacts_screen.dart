@@ -4,24 +4,26 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tfg_contactos/providers/providers.dart';
+import 'package:tfg_contactos/screens/screens.dart';
 import 'package:tfg_contactos/services/services.dart';
 import 'package:tfg_contactos/widgets/widgets.dart';
 import 'package:tfg_contactos/models/models.dart';
 
-class ContactScreen extends StatefulWidget {
-  const ContactScreen({Key? key,}) : super(key: key);
+class ContactsScreen extends StatefulWidget {
+  const ContactsScreen({Key? key,}) : super(key: key);
   
   @override
-  State<ContactScreen> createState() => _ContactScreenState();
+  State<ContactsScreen> createState() => _ContactsScreenState();
 }
 
-class _ContactScreenState extends State<ContactScreen> with WidgetsBindingObserver{
+class _ContactsScreenState extends State<ContactsScreen> with WidgetsBindingObserver{
   late final ContactPermissions _permissions;
   late final SharedPreferences prefs;
+  String deviceNumber = GlobalVariables.user.telefono;
   List<Contact> deviceContacts = [];
   bool hasPermission = false;
   bool _detectPermission = false;
-  String deviceNumber = '';
+  
 
   @override
   void initState() {
@@ -29,7 +31,6 @@ class _ContactScreenState extends State<ContactScreen> with WidgetsBindingObserv
     WidgetsBinding.instance.addObserver(this);
     _permissions = ContactPermissions();
     initializeHasPermissions();
-    initializeDeviceNumber();
   }
 
   @override dispose() {
@@ -64,11 +65,6 @@ class _ContactScreenState extends State<ContactScreen> with WidgetsBindingObserv
     }
   }
 
-  // Método para obtener el valor del dispositivo
-  Future<void> initializeDeviceNumber() async {
-    deviceNumber = await DeviceNumber.getNumber();
-  }
-
   // Método que solicita los permisos al usuario, 
   // si este los otorga, se cargan los contactos
   Future<void> _checkPermissions() async {
@@ -85,7 +81,10 @@ class _ContactScreenState extends State<ContactScreen> with WidgetsBindingObserv
   @override
   Widget build(BuildContext context) {
 
+    UserLoginRegisterFormProvider usersProvider = Provider.of<UserLoginRegisterFormProvider>(context);
     ContactFormProvider contactsProvider = Provider.of<ContactFormProvider>(context);
+    Widget add = Container();
+    Widget profile = Container();
 
     return ChangeNotifierProvider.value(
       value: _permissions,
@@ -98,8 +97,10 @@ class _ContactScreenState extends State<ContactScreen> with WidgetsBindingObserv
           // Si ya tiene los permisos con anterioridad, quiere
           // decir que entramos desde el login
           if(hasPermission) {
-            final filteredContacts = filterContacts(contactsProvider, deviceNumber);
-            widget = ContactsLoaded(contacts: filteredContacts);
+            GlobalVariables.filteredContacts = filterContacts(contactsProvider, deviceNumber);
+            add = addAndProfileWidgets(context, 0, usersProvider, deviceNumber);
+            profile = addAndProfileWidgets(context, 1, usersProvider, deviceNumber);
+            widget = ContactsLoaded(contacts: GlobalVariables.filteredContacts);
           } else {
             // Si no tenemos los permisos con anterioridad
             // quiere decir que entramos desde el registro
@@ -118,10 +119,13 @@ class _ContactScreenState extends State<ContactScreen> with WidgetsBindingObserv
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                     Future.delayed(const Duration(milliseconds: 500), () {
                       contactsProvider.notifyChanges();
+                      usersProvider.notifyChanges();
                     });
                 });
-                final filteredContacts = filterContacts(contactsProvider, deviceNumber);
-                widget = ContactsLoaded(contacts: filteredContacts);
+                GlobalVariables.filteredContacts = filterContacts(contactsProvider, deviceNumber);
+                add = addAndProfileWidgets(context, 0, usersProvider, deviceNumber);
+                profile = addAndProfileWidgets(context, 1, usersProvider, deviceNumber);
+                widget = ContactsLoaded(contacts: GlobalVariables.filteredContacts);
                 break;
             }
           }
@@ -130,6 +134,10 @@ class _ContactScreenState extends State<ContactScreen> with WidgetsBindingObserv
             appBar: AppBar(
               title: const Text('Contactos'),
               automaticallyImplyLeading: false,
+              actions: [
+                profile,
+                add
+              ],
             ),
             body: widget,
           );
@@ -239,9 +247,8 @@ class ContactsLoaded extends StatelessWidget {
   final List<MyContact> contacts;
 
   const ContactsLoaded({
-    Key? key,
     required this.contacts,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -326,7 +333,6 @@ void uploadContacts(List<Contact> contacts, ContactFormProvider contactFormProvi
 // asociados al dispositivo
 List<MyContact> filterContacts(ContactFormProvider contactFormProvider, String deviceNumber) {
   List<MyContact> filteredContacts = [];
-  //contactFormProvider.notifyChanges();
 
   for (var i = 0; i < contactFormProvider.contactServices.contacts.length; i++) {
     if(contactFormProvider.contactServices.contacts[i].numUsuario == deviceNumber) {
@@ -334,5 +340,41 @@ List<MyContact> filterContacts(ContactFormProvider contactFormProvider, String d
     }
   }
 
+  // Ordenamos los contactos por orden alfabético
+  filteredContacts.sort((a, b) => a.nombre.compareTo(b.nombre),);
+
   return filteredContacts;
+}
+
+// Método para rellenar los Widgets que irán 
+// en el AppBar
+Widget addAndProfileWidgets(BuildContext context, int position, UserLoginRegisterFormProvider userProvider, String deviceNumber){
+  Widget widget = Container();
+
+  switch(position){
+    case 0:
+      widget = IconButton(
+        onPressed: () {
+          final route = MaterialPageRoute(
+            builder: (context) => ProfileScreen(usersProvider: userProvider, deviceNumber: deviceNumber,),
+          );
+          Navigator.push(context, route);
+        },
+        icon: const Icon(Icons.settings),
+      );
+      break;
+    case 1:
+      widget = IconButton(
+        onPressed: () {
+          final route = MaterialPageRoute(
+            builder: (context) => CreateContactScreen(),
+          );
+          Navigator.push(context, route);
+        },
+        icon: const Icon(Icons.add),
+      );
+      break;
+  }
+
+  return widget;   
 }
