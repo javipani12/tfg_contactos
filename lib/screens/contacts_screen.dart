@@ -95,11 +95,16 @@ class _ContactsScreenState extends State<ContactsScreen> with WidgetsBindingObse
           // Comprobamos todos los posibles casos, en función
           // del que sea, el widget será uno u otro
           // Si ya tiene los permisos con anterioridad, quiere
-          // decir que entramos desde el login
+          // decir que se accede desde el login
           if(hasPermission) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+                Future.delayed(const Duration(milliseconds: 500), () {
+                  contactsProvider.notifyChanges();
+                });
+            });
             GlobalVariables.filteredContacts = filterContacts(contactsProvider, deviceNumber);
-            add = addAndProfileWidgets(context, 0, usersProvider, deviceNumber);
-            profile = addAndProfileWidgets(context, 1, usersProvider, deviceNumber);
+            add = addAndProfileWidgets(context, 0, usersProvider, contactsProvider, deviceNumber, GlobalVariables.filteredContacts);
+            profile = addAndProfileWidgets(context, 1, usersProvider, contactsProvider, deviceNumber, GlobalVariables.filteredContacts);
             widget = ContactsLoaded(contacts: GlobalVariables.filteredContacts);
           } else {
             // Si no tenemos los permisos con anterioridad
@@ -119,12 +124,11 @@ class _ContactsScreenState extends State<ContactsScreen> with WidgetsBindingObse
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                     Future.delayed(const Duration(milliseconds: 500), () {
                       contactsProvider.notifyChanges();
-                      usersProvider.notifyChanges();
                     });
                 });
                 GlobalVariables.filteredContacts = filterContacts(contactsProvider, deviceNumber);
-                add = addAndProfileWidgets(context, 0, usersProvider, deviceNumber);
-                profile = addAndProfileWidgets(context, 1, usersProvider, deviceNumber);
+                add = addAndProfileWidgets(context, 0, usersProvider, contactsProvider, deviceNumber, GlobalVariables.filteredContacts);
+                profile = addAndProfileWidgets(context, 1, usersProvider, contactsProvider, deviceNumber, GlobalVariables.filteredContacts);
                 widget = ContactsLoaded(contacts: GlobalVariables.filteredContacts);
                 break;
             }
@@ -298,6 +302,7 @@ void uploadContact(ContactFormProvider contactFormProvider, String nombre, Strin
     numUsuario: deviceNumber, 
     nombre: nombre, 
     telefono: telefono,
+    borrado: 0,
   );
   contactFormProvider.contactServices.createContact(contact);
 }
@@ -335,7 +340,9 @@ List<MyContact> filterContacts(ContactFormProvider contactFormProvider, String d
   List<MyContact> filteredContacts = [];
 
   for (var i = 0; i < contactFormProvider.contactServices.contacts.length; i++) {
-    if(contactFormProvider.contactServices.contacts[i].numUsuario == deviceNumber) {
+    if(contactFormProvider.contactServices.contacts[i].numUsuario == deviceNumber &&
+        contactFormProvider.contactServices.contacts[i].borrado == 0
+    ) {
       filteredContacts.add(contactFormProvider.contactServices.contacts[i]);
     }
   }
@@ -348,7 +355,15 @@ List<MyContact> filterContacts(ContactFormProvider contactFormProvider, String d
 
 // Método para rellenar los Widgets que irán 
 // en el AppBar
-Widget addAndProfileWidgets(BuildContext context, int position, UserLoginRegisterFormProvider userProvider, String deviceNumber){
+Widget addAndProfileWidgets(
+    BuildContext context, 
+    int position, 
+    UserLoginRegisterFormProvider userProvider, 
+    ContactFormProvider contactsProvider, 
+    String deviceNumber,
+    List<MyContact> filteredContacts
+  ){
+  
   Widget widget = Container();
 
   switch(position){
@@ -356,7 +371,10 @@ Widget addAndProfileWidgets(BuildContext context, int position, UserLoginRegiste
       widget = IconButton(
         onPressed: () {
           final route = MaterialPageRoute(
-            builder: (context) => ProfileScreen(usersProvider: userProvider, deviceNumber: deviceNumber,),
+            builder: (context) => ProfileScreen(
+              usersProvider: userProvider, 
+              deviceNumber: deviceNumber,
+            ),
           );
           Navigator.push(context, route);
         },
@@ -367,7 +385,10 @@ Widget addAndProfileWidgets(BuildContext context, int position, UserLoginRegiste
       widget = IconButton(
         onPressed: () {
           final route = MaterialPageRoute(
-            builder: (context) => CreateContactScreen(),
+            builder: (context) => CreateContactScreen(
+              contactsProvider: contactsProvider,
+              filteredContacts: filteredContacts,
+            ),
           );
           Navigator.push(context, route);
         },

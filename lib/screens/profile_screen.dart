@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 import 'package:tfg_contactos/models/models.dart';
-import 'dart:math';
 import 'package:tfg_contactos/providers/providers.dart';
 import 'package:tfg_contactos/screens/screens.dart';
 import 'package:tfg_contactos/themes/app_themes.dart';
 import 'package:provider/provider.dart';
-import 'package:tfg_contactos/widgets/widgets.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({

@@ -6,12 +6,14 @@ class MyContact {
     String numUsuario;
     String nombre;
     String telefono;
+    int borrado;
     String? id;
 
     MyContact({
         required this.numUsuario,
         required this.nombre,
         required this.telefono,
+        required this.borrado,
         this.id,
     });
 
@@ -23,11 +25,13 @@ class MyContact {
         numUsuario: json["numUsuario"],
         nombre: json["nombre"],
         telefono: json["telefono"],
+        borrado: json["borrado"]
     );
 
     Map<String, dynamic> toMap() => {
         "numUsuario": numUsuario,
         "nombre": nombre,
         "telefono": telefono,
+        "borrado": borrado,
     };
 }

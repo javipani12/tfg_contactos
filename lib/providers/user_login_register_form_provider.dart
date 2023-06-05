@@ -58,10 +58,10 @@ class UserLoginRegisterFormProvider extends ChangeNotifier {
   }
 
   // Método para validar el registro del usuario
-  // Existen dos posibles caso, que devuelva 0 o que devuelva 1
+  // Existen dos posibles casos, que devuelva 0 o que devuelva 1
   // 0: el Usuario no existe, se creará uno nuevo con los datos
   // 1: el Usuario ya existe en BBDD, 
-  // se tomarán esos datos para establecerlos en la app
+  //    se tomarán esos datos para establecerlos en la app
   int isValidRegister(String number) {
     int result = 0;
 

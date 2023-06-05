@@ -140,7 +140,7 @@ class Register extends StatelessWidget {
                       );
                       break;
                     case 1:
-                      mensajeContactoExistente(context).then((_) async {
+                      PopUp.duplicatedMessage(context, 0).then((_) async {
                         User user = usersProvider.getUser(phoneNumber);
                         await DeviceNumber.setNumber(user.telefono);
                         await DevicePass.setPass(user.clave);
@@ -160,24 +160,6 @@ class Register extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Future<dynamic> mensajeContactoExistente(BuildContext context) {
-    return showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Número existente'),
-        content: const Text('El número de teléfono ya existe, ' 
-        'se procederá a cargar los contactos que tiene asociados.'
-        ),
-        actions: [
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
       ),
     );
   }

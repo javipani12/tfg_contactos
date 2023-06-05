@@ -19,8 +19,8 @@ class EditProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     GlobalKey<FormState> formKey = GlobalKey<FormState>();
-    UserLoginRegisterFormProvider usersProvider = Provider.of<UserLoginRegisterFormProvider>(context);
     ContactFormProvider contactsProvider = Provider.of<ContactFormProvider>(context);
+    String telefono = '', clave = '';
 
     return Scaffold(
       appBar: AppBar(
@@ -34,7 +34,7 @@ class EditProfileScreen extends StatelessWidget {
               initialValue: user.telefono,
               keyboardType: TextInputType.phone,
               onChanged: (value) {
-                user.telefono = value;
+                telefono = value;
               },
               decoration: const InputDecoration(hintText: 'Teléfono'),
               validator: (value) {
@@ -47,7 +47,7 @@ class EditProfileScreen extends StatelessWidget {
             TextFormField(
               initialValue: user.clave,
               onChanged: (value) {
-                user.clave = value;
+                clave = value;
               },
               decoration: const InputDecoration(hintText: 'Clave'),
               validator: (value) {
@@ -60,20 +60,27 @@ class EditProfileScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 if (formKey.currentState?.validate() ?? false) {
-                  await DeviceNumber.setNumber(user.telefono!);
-                  await DevicePass.setPass(user.clave);
-                  GlobalVariables.user = user;
-                  updateContacNumUser(contactsProvider);
-                  usersProvider.usersServices.updateUser(user);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ProfileScreen(
-                        usersProvider: usersProvider, 
-                        deviceNumber: user.telefono,
-                      )
-                    ),
-                  );
+                  int updateUserState = usersProvider.isValidRegister(telefono);
+                  if ( updateUserState == 1) {
+                    PopUp.duplicatedMessage(context, 1);
+                  } else {
+                    user.telefono = telefono;
+                    user.clave = clave;
+                    await DeviceNumber.setNumber(user.telefono);
+                    await DevicePass.setPass(user.clave);
+                    GlobalVariables.user = user;
+                    updateContacNumUser(contactsProvider);
+                    usersProvider.usersServices.updateUser(user);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProfileScreen(
+                          usersProvider: usersProvider, 
+                          deviceNumber: user.telefono,
+                        )
+                      ),
+                    );
+                  }
                 }
               },
               child: const Text('Continuar'),
