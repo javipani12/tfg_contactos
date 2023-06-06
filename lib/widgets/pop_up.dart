@@ -65,33 +65,39 @@ class PopUp{
         break;
     }
 
-
     return showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('${firstMessageLine}'),
         content: Text('${message}'),
         actions: [
-          state == 0 || state == 1 ?
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          )
-          :
-          ElevatedButton(
-            onPressed: () {
-              result = 0;
-              Navigator.pop(context, result);
-            },
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              result = 1;
-              Navigator.pop(context, result);
-            },
-            child: const Text('OK'),
-          ),
+          if (state == 0 || state == 1)
+            ElevatedButton(
+              onPressed: () {
+                result = 1;
+                Navigator.pop(context, result);
+              },
+              child: const Text('OK'),
+            )
+          else
+            Column(
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    result = 0;
+                    Navigator.pop(context, result);
+                  },
+                  child: const Text('Cancelar'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    result = 1;
+                    Navigator.pop(context, result);
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
         ],
       ),
     );

@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:tfg_contactos/models/models.dart';
 import 'package:tfg_contactos/providers/providers.dart';
 import 'package:tfg_contactos/screens/screens.dart';
+import 'package:tfg_contactos/widgets/widgets.dart';
 import 'package:tfg_contactos/themes/app_themes.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -44,6 +46,25 @@ class ContactScreen extends StatelessWidget {
             },
             icon: const Icon(Icons.edit),
           ),
+          IconButton(
+            onPressed: () {
+              PopUp.okMessage(context, 2).then((result) async {
+                if(result == 1) {
+                  contact.borrado = 1;
+                  contactsProvider.contactServices.updateContact(contact);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ContactsScreen()
+                    ),
+                  );
+                } else {
+                  Navigator.pop(context);
+                }
+              });
+            },
+            icon: const Icon(Icons.delete),
+          ),
         ],
       ),
       body: _ContactScreenBody(
@@ -66,7 +87,14 @@ class _ContactScreenBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String whatsappAndroidURL = "https://wa.me/${contact.telefono}/?text=''";
+    String whatsappURL = '';
+
+    if(Platform.isIOS) {
+
+    } else {
+      whatsappURL = "https://wa.me/${contact.telefono}";
+    }
+
     return SingleChildScrollView(
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -116,8 +144,8 @@ class _ContactScreenBody extends StatelessWidget {
                       ),
                     ),
                     onPressed: () async => {
-                      if(await canLaunchUrl(Uri.parse(whatsappAndroidURL))){
-                        await launchUrl(Uri.parse(whatsappAndroidURL),mode: LaunchMode.externalApplication)
+                      if(await canLaunchUrl(Uri.parse(whatsappURL))){
+                        await launchUrl(Uri.parse(whatsappURL),mode: LaunchMode.externalApplication)
                       }
                     }
                   ),

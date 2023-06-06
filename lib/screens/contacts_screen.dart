@@ -97,8 +97,13 @@ class _ContactsScreenState extends State<ContactsScreen> with WidgetsBindingObse
           // Si ya tiene los permisos con anterioridad, quiere
           // decir que se accede desde el login
           if(hasPermission) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Future.delayed(const Duration(milliseconds: 500), () {
+                contactsProvider.notifyChanges();
+                usersProvider.notifyChanges();
+              });
+            });
             GlobalVariables.filteredContacts = filterContacts(contactsProvider, deviceNumber);
-            print('Contactos: '+ GlobalVariables.filteredContacts.length.toString());
             add = AppBarWidgets.addAndProfileWidgets(context, 0, usersProvider, contactsProvider, deviceNumber, GlobalVariables.filteredContacts);
             profile = AppBarWidgets.addAndProfileWidgets(context, 1, usersProvider, contactsProvider, deviceNumber, GlobalVariables.filteredContacts);
             widget = ContactsLoaded(contacts: GlobalVariables.filteredContacts);
@@ -124,7 +129,6 @@ class _ContactsScreenState extends State<ContactsScreen> with WidgetsBindingObse
                     });
                 });
                 GlobalVariables.filteredContacts = filterContacts(contactsProvider, deviceNumber);
-                print('Contactos: '+ GlobalVariables.filteredContacts.length.toString());
                 add = AppBarWidgets.addAndProfileWidgets(context, 0, usersProvider, contactsProvider, deviceNumber, GlobalVariables.filteredContacts);
                 profile = AppBarWidgets.addAndProfileWidgets(context, 1, usersProvider, contactsProvider, deviceNumber, GlobalVariables.filteredContacts);
                 widget = ContactsLoaded(contacts: GlobalVariables.filteredContacts);

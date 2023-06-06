@@ -5,7 +5,7 @@ import 'package:tfg_contactos/screens/screens.dart';
 import 'package:tfg_contactos/themes/app_themes.dart';
 import 'package:tfg_contactos/widgets/widgets.dart';
 
-class EditProfileScreen extends StatelessWidget {
+class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({
     Key? key,
     required this.usersProvider,
@@ -18,10 +18,30 @@ class EditProfileScreen extends StatelessWidget {
   final User user;
 
   @override
-  Widget build(BuildContext context) {
-    GlobalKey<FormState> formKey = GlobalKey<FormState>();
-    String telefono = '', clave = '';
+  _EditProfileScreenState createState() => _EditProfileScreenState();
+}
 
+class _EditProfileScreenState extends State<EditProfileScreen> {
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  TextEditingController telefonoController = TextEditingController();
+  TextEditingController claveController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    telefonoController.text = widget.user.telefono;
+    claveController.text = widget.user.clave;
+  }
+
+  @override
+  void dispose() {
+    telefonoController.dispose();
+    claveController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Editar Perfil'),
@@ -31,11 +51,8 @@ class EditProfileScreen extends StatelessWidget {
         child: Column(
           children: [
             TextFormField(
-              initialValue: user.telefono,
+              controller: telefonoController,
               keyboardType: TextInputType.phone,
-              onChanged: (value) {
-                telefono = value;
-              },
               decoration: const InputDecoration(hintText: 'Teléfono'),
               validator: (value) {
                 if (value!.length != 9) {
@@ -45,10 +62,7 @@ class EditProfileScreen extends StatelessWidget {
               },
             ),
             TextFormField(
-              initialValue: user.clave,
-              onChanged: (value) {
-                clave = value;
-              },
+              controller: claveController,
               decoration: const InputDecoration(hintText: 'Clave'),
               validator: (value) {
                 if (value!.length != 5) {
@@ -59,33 +73,41 @@ class EditProfileScreen extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () async {
-                if (formKey.currentState?.validate() ?? false) {
-                  int updateUserState = usersProvider.isValidRegister(telefono);
-                  if ( updateUserState == 1) {
-                    PopUp.duplicatedMessage(context, 1);
+                if(formKey.currentState?.validate() ?? false) {
+                  if(telefonoController.text == GlobalVariables.user.telefono) {
+                    await updateEditedUser(context);
                   } else {
-                    user.telefono = telefono;
-                    user.clave = clave;
-                    await DeviceNumber.setNumber(user.telefono);
-                    await DevicePass.setPass(user.clave);
-                    GlobalVariables.user = user;
-                    updateContacNumUser(contactsProvider);
-                    usersProvider.usersServices.updateUser(user);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ProfileScreen(
-                          usersProvider: usersProvider, 
-                          deviceNumber: user.telefono,
-                        )
-                      ),
-                    );
+                    int updateUserState = widget.usersProvider.isValidRegister(telefonoController.text);
+                    if (updateUserState == 1) {
+                      PopUp.duplicatedMessage(context, 1);
+                    } else {
+                      await updateEditedUser(context);
+                    }
                   }
                 }
               },
               child: const Text('Continuar'),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> updateEditedUser(BuildContext context) async {
+    widget.user.telefono = telefonoController.text;
+    widget.user.clave = claveController.text;
+    await DeviceNumber.setNumber(widget.user.telefono);
+    await DevicePass.setPass(widget.user.clave);
+    GlobalVariables.user = widget.user;
+    widget.usersProvider.usersServices.updateUser(widget.user);
+    updateContacNumUser(widget.contactsProvider);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProfileScreen(
+          usersProvider: widget.usersProvider,
+          deviceNumber: widget.user.telefono,
         ),
       ),
     );

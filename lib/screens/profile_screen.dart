@@ -26,7 +26,6 @@ class ProfileScreen extends StatelessWidget {
         title: const Text('Perfil'),
         leading: IconButton(
           onPressed: () {
-            contactsProvider.notifyChanges();
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const ContactsScreen()
