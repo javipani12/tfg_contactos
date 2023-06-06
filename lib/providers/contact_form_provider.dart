@@ -1,3 +1,4 @@
+import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/material.dart';
 import 'package:tfg_contactos/models/models.dart';
 import 'package:tfg_contactos/services/services.dart';
@@ -40,5 +41,22 @@ class ContactFormProvider extends ChangeNotifier {
   // de usuario
   bool isValidForm() {
     return formKey.currentState?.validate() ?? false;
+  }
+
+  // Método para comprobar si el contacto
+  // ya existe en BBDD asociado a un usuario
+  // en concreto
+  int isValidContact(String deviceNumber, String newPhoneNumber){
+    int state = 0;
+
+    for (var i = 0; i < contactServices.contacts.length; i++) {
+      if(contactServices.contacts[i].numUsuario == deviceNumber &&
+        contactServices.contacts[i].telefono == newPhoneNumber)
+      {
+        state = 1;  
+      }
+    }
+
+    return state;
   }
 }

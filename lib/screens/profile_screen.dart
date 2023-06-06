@@ -4,6 +4,7 @@ import 'package:tfg_contactos/providers/providers.dart';
 import 'package:tfg_contactos/screens/screens.dart';
 import 'package:tfg_contactos/themes/app_themes.dart';
 import 'package:provider/provider.dart';
+import 'package:tfg_contactos/widgets/global_variables.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({
@@ -18,7 +19,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ContactFormProvider contactsProvider = Provider.of<ContactFormProvider>(context);
-    User user = usersProvider.getUser(deviceNumber);
+    User user = GlobalVariables.user;
 
     return Scaffold(
       appBar: AppBar(
@@ -40,6 +41,7 @@ class ProfileScreen extends StatelessWidget {
               final route = MaterialPageRoute(
                 builder: (context) => EditProfileScreen(
                   usersProvider: usersProvider, 
+                  contactsProvider: contactsProvider,
                   user: user,
                 ),
               );

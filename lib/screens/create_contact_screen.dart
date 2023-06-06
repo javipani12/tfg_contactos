@@ -76,7 +76,7 @@ class CreateContactScreen extends StatelessWidget {
                   if ( createContactState == 1) {
                     PopUp.duplicatedMessage(context, 1);
                   } else {
-                    PopUp.okMessage(context).then((_) async {
+                    PopUp.okMessage(context, 0).then((_) async {
                       contact.nombre = nombre;
                       contact.telefono = telefono;
                       contactsProvider.contactServices.createContact(contact);

@@ -3,23 +3,23 @@ import 'package:tfg_contactos/models/models.dart';
 import 'package:tfg_contactos/providers/providers.dart';
 import 'package:tfg_contactos/screens/screens.dart';
 import 'package:tfg_contactos/themes/app_themes.dart';
-import 'package:provider/provider.dart';
 import 'package:tfg_contactos/widgets/widgets.dart';
 
 class EditProfileScreen extends StatelessWidget {
   const EditProfileScreen({
     Key? key,
     required this.usersProvider,
+    required this.contactsProvider,
     required this.user,
   }) : super(key: key);
 
   final UserLoginRegisterFormProvider usersProvider;
+  final ContactFormProvider contactsProvider;
   final User user;
 
   @override
   Widget build(BuildContext context) {
     GlobalKey<FormState> formKey = GlobalKey<FormState>();
-    ContactFormProvider contactsProvider = Provider.of<ContactFormProvider>(context);
     String telefono = '', clave = '';
 
     return Scaffold(

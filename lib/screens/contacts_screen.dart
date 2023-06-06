@@ -97,14 +97,10 @@ class _ContactsScreenState extends State<ContactsScreen> with WidgetsBindingObse
           // Si ya tiene los permisos con anterioridad, quiere
           // decir que se accede desde el login
           if(hasPermission) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-                Future.delayed(const Duration(milliseconds: 500), () {
-                  contactsProvider.notifyChanges();
-                });
-            });
             GlobalVariables.filteredContacts = filterContacts(contactsProvider, deviceNumber);
-            add = addAndProfileWidgets(context, 0, usersProvider, contactsProvider, deviceNumber, GlobalVariables.filteredContacts);
-            profile = addAndProfileWidgets(context, 1, usersProvider, contactsProvider, deviceNumber, GlobalVariables.filteredContacts);
+            print('Contactos: '+ GlobalVariables.filteredContacts.length.toString());
+            add = AppBarWidgets.addAndProfileWidgets(context, 0, usersProvider, contactsProvider, deviceNumber, GlobalVariables.filteredContacts);
+            profile = AppBarWidgets.addAndProfileWidgets(context, 1, usersProvider, contactsProvider, deviceNumber, GlobalVariables.filteredContacts);
             widget = ContactsLoaded(contacts: GlobalVariables.filteredContacts);
           } else {
             // Si no tenemos los permisos con anterioridad
@@ -124,11 +120,13 @@ class _ContactsScreenState extends State<ContactsScreen> with WidgetsBindingObse
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                     Future.delayed(const Duration(milliseconds: 500), () {
                       contactsProvider.notifyChanges();
+                      usersProvider.notifyChanges();
                     });
                 });
                 GlobalVariables.filteredContacts = filterContacts(contactsProvider, deviceNumber);
-                add = addAndProfileWidgets(context, 0, usersProvider, contactsProvider, deviceNumber, GlobalVariables.filteredContacts);
-                profile = addAndProfileWidgets(context, 1, usersProvider, contactsProvider, deviceNumber, GlobalVariables.filteredContacts);
+                print('Contactos: '+ GlobalVariables.filteredContacts.length.toString());
+                add = AppBarWidgets.addAndProfileWidgets(context, 0, usersProvider, contactsProvider, deviceNumber, GlobalVariables.filteredContacts);
+                profile = AppBarWidgets.addAndProfileWidgets(context, 1, usersProvider, contactsProvider, deviceNumber, GlobalVariables.filteredContacts);
                 widget = ContactsLoaded(contacts: GlobalVariables.filteredContacts);
                 break;
             }
@@ -264,18 +262,18 @@ class ContactsLoaded extends StatelessWidget {
               itemCount: contacts.length,
               itemBuilder: (BuildContext context, int index) {
                 final contact = contacts[index];
-                return Card(
-                  clipBehavior: Clip.antiAlias,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  color: Colors.amber,
-                  child: Column(
-                    children: [
-                      Text(contact.nombre),
-                      Text(contact.telefono),
-                    ],
-                  ),
+                return GestureDetector(
+                  child: ContactCard(contact: contact),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ContactScreen(
+                          contact: contact,
+                        )
+                      ),
+                    );
+                  },
                 );
               },
             ),
@@ -290,6 +288,32 @@ class ContactsLoaded extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+}
+
+class ContactCard extends StatelessWidget {
+  const ContactCard({
+    super.key,
+    required this.contact,
+  });
+
+  final MyContact contact;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
+      color: Colors.amber,
+      child: Column(
+        children: [
+          Text(contact.nombre),
+          Text(contact.telefono),
+        ],
+      ),
     );
   }
 }
@@ -351,51 +375,4 @@ List<MyContact> filterContacts(ContactFormProvider contactFormProvider, String d
   filteredContacts.sort((a, b) => a.nombre.compareTo(b.nombre),);
 
   return filteredContacts;
-}
-
-// Método para rellenar los Widgets que irán 
-// en el AppBar
-Widget addAndProfileWidgets(
-    BuildContext context, 
-    int position, 
-    UserLoginRegisterFormProvider userProvider, 
-    ContactFormProvider contactsProvider, 
-    String deviceNumber,
-    List<MyContact> filteredContacts
-  ){
-  
-  Widget widget = Container();
-
-  switch(position){
-    case 0:
-      widget = IconButton(
-        onPressed: () {
-          final route = MaterialPageRoute(
-            builder: (context) => ProfileScreen(
-              usersProvider: userProvider, 
-              deviceNumber: deviceNumber,
-            ),
-          );
-          Navigator.push(context, route);
-        },
-        icon: const Icon(Icons.settings),
-      );
-      break;
-    case 1:
-      widget = IconButton(
-        onPressed: () {
-          final route = MaterialPageRoute(
-            builder: (context) => CreateContactScreen(
-              contactsProvider: contactsProvider,
-              filteredContacts: filteredContacts,
-            ),
-          );
-          Navigator.push(context, route);
-        },
-        icon: const Icon(Icons.add),
-      );
-      break;
-  }
-
-  return widget;   
 }

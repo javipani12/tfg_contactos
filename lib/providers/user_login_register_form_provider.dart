@@ -57,7 +57,7 @@ class UserLoginRegisterFormProvider extends ChangeNotifier {
     return validate;
   }
 
-  // Método para validar el registro del usuario
+  // Método para validar si el usuario existe o no en BBDD
   // Existen dos posibles casos, que devuelva 0 o que devuelva 1
   // 0: el Usuario no existe, se creará uno nuevo con los datos
   // 1: el Usuario ya existe en BBDD, 
