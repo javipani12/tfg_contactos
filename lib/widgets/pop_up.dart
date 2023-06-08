@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 class PopUp{
 
   static Future<dynamic> duplicatedMessage(BuildContext context, int state) {
-    String firstMessageLine = ' ';
-    String message = ' ';
+    String firstMessageLine = '';
+    String message = '';
 
     // El valor de state podrá ser 0, 1 ó 2.
     // 0: Venimos desde el registro.
@@ -34,7 +34,7 @@ class PopUp{
         actions: [
           ElevatedButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+            child: const Text('Continuar'),
           ),
         ],
       ),
@@ -42,14 +42,15 @@ class PopUp{
   }
 
   static Future<dynamic> okMessage(BuildContext context, int state) {
-    String firstMessageLine = ' ';
-    String message = ' ';
+    String firstMessageLine = '';
+    String message = '';
     int result = 0;
     
-    // El valor de state podrá ser 0, 1 ó 2.
+    // El valor de state podrá ser 0, 1, 2 ó 3.
     // 0: Venimos desde crear un contacto.
     // 1: Venimos desde actualizar un contacto.
-    // 2: Venimos desde borrar un contacto.
+    // 2: Venimos desde actualizar el usuario
+    // 3: Venimos desde borrar un contacto.
     switch(state){
       case 0:
         firstMessageLine = 'Contacto creado';
@@ -60,6 +61,10 @@ class PopUp{
         message = 'El contacto se ha actualizado correctamente';
         break;
       case 2:
+        firstMessageLine = 'Usuario actualizado';
+        message = 'Tu usuario se ha actualizado correctamente';
+        break;
+      case 3:
         firstMessageLine = 'Borrar Contacto';
         message = '¿Estás seguro/a de que quieres borrar este contacto?';
         break;
@@ -71,17 +76,19 @@ class PopUp{
         title: Text('${firstMessageLine}'),
         content: Text('${message}'),
         actions: [
-          if (state == 0 || state == 1)
+          if (state != 3)
             ElevatedButton(
               onPressed: () {
                 result = 1;
                 Navigator.pop(context, result);
               },
-              child: const Text('OK'),
+              child: const Text('Continuar'),
             )
           else
-            Column(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                // Si pulsamos en Cancelar devolverá 0
                 ElevatedButton(
                   onPressed: () {
                     result = 0;
@@ -89,12 +96,16 @@ class PopUp{
                   },
                   child: const Text('Cancelar'),
                 ),
+                const SizedBox(
+                  width: 10,
+                ),
+                // Si pulsamos en Confirmar devolverá 1
                 ElevatedButton(
                   onPressed: () {
                     result = 1;
                     Navigator.pop(context, result);
                   },
-                  child: const Text('OK'),
+                  child: const Text('Confirmar'),
                 ),
               ],
             ),

@@ -45,10 +45,12 @@ class _EditContactScreenState extends State<EditContactScreen> {
       appBar: AppBar(
         title: const Text('Editar Contacto'),
       ),
+      // Formulario de edición del contacto
       body: Form(
         key: formKey,
         child: Column(
           children: [
+            // Campo para el nombre
             TextFormField(
               controller: nombreController,
               decoration: const InputDecoration(hintText: 'Nombre'),
@@ -59,6 +61,7 @@ class _EditContactScreenState extends State<EditContactScreen> {
                 return null;
               },
             ),
+            // Campo para el teléfono
             TextFormField(
               controller: telefonoController,
               keyboardType: TextInputType.phone,
@@ -70,26 +73,33 @@ class _EditContactScreenState extends State<EditContactScreen> {
                 return null;
               },
             ),
+            // Botón para actualizar el contacto 
             ElevatedButton(
               onPressed: () async {
                 if (formKey.currentState?.validate() ?? false) {
+                  // Si el valor del teléfono no ha cambiado,
+                  // mensaje de todo bienactualizamos
                   if(telefonoController.text == widget.contact.telefono){
                     updateEditedContact(context);
                   } else {
+                    // Si ha cambiado comprobamos que no exista en BBDD
                     int updateContactState = widget.contactsProvider.isValidContact(
                       GlobalVariables.user.telefono, 
                       telefonoController.text
                     );
 
+                    // Si existe, mensaje de error
                     if ( updateContactState == 1 ) {
                       PopUp.duplicatedMessage(context, 2);
                     } else {
+                      // En caso contrario mensaje de todo bien
+                      // y actualizamos
                       updateEditedContact(context);
                     }
                   }
                 }
               },
-              child: const Text('Continuar'),
+              child: const Text('Actualizar'),
             ),
           ],
         ),
@@ -97,6 +107,10 @@ class _EditContactScreenState extends State<EditContactScreen> {
     );
   }
 
+  // Método local para actualizar el contacto, 
+  // estableciendo los nuevos valores tanto a dicho
+  // contacto como a los datos persistentes y a
+  // las variables globales.
   void updateEditedContact(BuildContext context) {
     PopUp.okMessage(context, 1).then((_) async {
       widget.contact.nombre = nombreController.text;
@@ -105,7 +119,9 @@ class _EditContactScreenState extends State<EditContactScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ContactsScreen()
+          builder: (context) => ContactScreen(
+            contact: widget.contact
+          )
         ),
       );
     });

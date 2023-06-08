@@ -2,12 +2,13 @@ import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tfg_contactos/providers/providers.dart';
 import 'package:tfg_contactos/screens/screens.dart';
 import 'package:tfg_contactos/services/services.dart';
+import 'package:tfg_contactos/widgets/updated_contacts.dart';
 import 'package:tfg_contactos/widgets/widgets.dart';
 import 'package:tfg_contactos/models/models.dart';
+import 'package:restart_app/restart_app.dart';
 
 class ContactsScreen extends StatefulWidget {
   const ContactsScreen({Key? key,}) : super(key: key);
@@ -17,13 +18,19 @@ class ContactsScreen extends StatefulWidget {
 }
 
 class _ContactsScreenState extends State<ContactsScreen> with WidgetsBindingObserver{
+  // Variables que necesitaremos para la ejecución de esta pantalla
   late final ContactPermissions _permissions;
-  late final SharedPreferences prefs;
   String deviceNumber = GlobalVariables.user.telefono;
   List<Contact> deviceContacts = [];
   bool hasPermission = false;
   bool _detectPermission = false;
-  
+  String updatedContacts = '';
+  MyContact contact = MyContact(
+    numUsuario: '', 
+    nombre: '', 
+    telefono: '', 
+    borrado: 0
+  );  
 
   @override
   void initState() {
@@ -65,6 +72,13 @@ class _ContactsScreenState extends State<ContactsScreen> with WidgetsBindingObse
     }
   }
 
+  // Método para inicializar hasPermission, de manera
+  // que podemos saber el estado de los permisos
+  // desde que inicia la aplicación
+  Future<void> initializeUpdatedContacts() async {
+    updatedContacts = await UpdatedContacts.getUpdatedContacts();
+  }
+
   // Método que solicita los permisos al usuario, 
   // si este los otorga, se cargan los contactos
   Future<void> _checkPermissions() async {
@@ -83,7 +97,7 @@ class _ContactsScreenState extends State<ContactsScreen> with WidgetsBindingObse
 
     UserLoginRegisterFormProvider usersProvider = Provider.of<UserLoginRegisterFormProvider>(context);
     ContactFormProvider contactsProvider = Provider.of<ContactFormProvider>(context);
-    Widget add = Container();
+    Widget addContact = Container();
     Widget profile = Container();
 
     return ChangeNotifierProvider.value(
@@ -97,15 +111,9 @@ class _ContactsScreenState extends State<ContactsScreen> with WidgetsBindingObse
           // Si ya tiene los permisos con anterioridad, quiere
           // decir que se accede desde el login
           if(hasPermission) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              Future.delayed(const Duration(milliseconds: 500), () {
-                contactsProvider.notifyChanges();
-                usersProvider.notifyChanges();
-              });
-            });
             GlobalVariables.filteredContacts = filterContacts(contactsProvider, deviceNumber);
-            add = AppBarWidgets.addAndProfileWidgets(context, 0, usersProvider, contactsProvider, deviceNumber, GlobalVariables.filteredContacts);
-            profile = AppBarWidgets.addAndProfileWidgets(context, 1, usersProvider, contactsProvider, deviceNumber, GlobalVariables.filteredContacts);
+            profile = AppBarWidgets.addAndProfileWidgets(context, 0, usersProvider, contactsProvider, deviceNumber, GlobalVariables.filteredContacts, contact);
+            addContact = AppBarWidgets.addAndProfileWidgets(context, 1, usersProvider, contactsProvider, deviceNumber, GlobalVariables.filteredContacts, contact);
             widget = ContactsLoaded(contacts: GlobalVariables.filteredContacts);
           } else {
             // Si no tenemos los permisos con anterioridad
@@ -121,17 +129,10 @@ class _ContactsScreenState extends State<ContactsScreen> with WidgetsBindingObse
                 widget = AskPermissionsButton(isPermanent: true, onPressed:  _checkPermissions);
                 break;
               case CurrentStatus.granted:
-                uploadContacts(deviceContacts, contactsProvider, deviceNumber);
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                    Future.delayed(const Duration(milliseconds: 500), () {
-                      contactsProvider.notifyChanges();
-                      usersProvider.notifyChanges();
-                    });
-                });
-                GlobalVariables.filteredContacts = filterContacts(contactsProvider, deviceNumber);
-                add = AppBarWidgets.addAndProfileWidgets(context, 0, usersProvider, contactsProvider, deviceNumber, GlobalVariables.filteredContacts);
-                profile = AppBarWidgets.addAndProfileWidgets(context, 1, usersProvider, contactsProvider, deviceNumber, GlobalVariables.filteredContacts);
-                widget = ContactsLoaded(contacts: GlobalVariables.filteredContacts);
+                // Cuando se han otorgado los permisos
+                // subimos los contactos a BBDD y reiniciamos la app
+                uploadContacts(creatMyContactsList(deviceContacts, contactsProvider, deviceNumber, updatedContacts), contactsProvider);
+                widget = const RestartApp();
                 break;
             }
           }
@@ -141,14 +142,48 @@ class _ContactsScreenState extends State<ContactsScreen> with WidgetsBindingObse
               title: const Text('Contactos'),
               automaticallyImplyLeading: false,
               actions: [
+                // Añadimos lo botones del AppBar,
+                // solo aparecerán cuando accedemos desde el login
+                addContact,
                 profile,
-                add
               ],
             ),
-            body: widget,
+            body: FutureBuilder<void>(
+              // Agrega un retraso de inicio de 2 segundos
+              future: Future.delayed(const Duration(seconds: 1)), 
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  // Mostramos un indicador de carga mientras esperamos
+                  return const Center(
+                    child: CircularProgressIndicator()
+                  );
+                } else {
+                  // El retraso ha finalizado, mostramos el contenido del cuerpo
+                  return widget;
+                }
+              },
+            ),
           );
         },
       )
+    );
+  }
+}
+
+// Widget para Reiniciar la aplicación
+// la primera vez que se usa
+class RestartApp extends StatelessWidget {
+  const RestartApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: TextButton(
+        onPressed: () {
+          Restart.restartApp(webOrigin: 'loginRegister');
+        },
+        child: const Text('Reiniciar'),
+      ),
     );
   }
 }
@@ -249,10 +284,13 @@ class AskPermissionsButton extends StatelessWidget {
   }
 }
 
+// Widget que se utiliza para mostrar 
+// los contactos del usuario por pantalla
 class ContactsLoaded extends StatelessWidget {
   final List<MyContact> contacts;
 
   const ContactsLoaded({
+    super.key, 
     required this.contacts,
   });
 
@@ -262,13 +300,21 @@ class ContactsLoaded extends StatelessWidget {
       children: [
         if (contacts.isNotEmpty)
           Expanded(
+            // El ListView.builder generará, en este caso,
+            // un Card por cada elemento que contenga
+            // la lista que se le pasa (contacts)
             child: ListView.builder(
               itemCount: contacts.length,
               itemBuilder: (BuildContext context, int index) {
                 final contact = contacts[index];
+                // El GestureDetector permite que podamos
+                // pulsar en cualquier parte del Card 
+                // (un Card en este caso)
                 return GestureDetector(
                   child: ContactCard(contact: contact),
                   onTap: () {
+                    // Al pulsar nos vamos a la pantalla
+                    // en concreto de cada contacto
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -283,19 +329,16 @@ class ContactsLoaded extends StatelessWidget {
             ),
           )
         else
-          const Expanded(
-            child: SizedBox(
-              height: double.infinity / 2,
-              child: Center(
-                child: CircularProgressIndicator()
-                ),
-            ),
+          const ErrorScreen(
+            errorCode: 3
           ),
       ],
     );
   }
 }
 
+// Widget que servirá como cuerpo del 
+// ListView.builder
 class ContactCard extends StatelessWidget {
   const ContactCard({
     super.key,
@@ -324,47 +367,63 @@ class ContactCard extends StatelessWidget {
 
 
 // Método para crear un objeto de tipo MyContact
-// y subirlo a BBDD
-void uploadContact(ContactFormProvider contactFormProvider, String nombre, String telefono, String deviceNumber) { 
+MyContact createMyContact(ContactFormProvider contactFormProvider, String nombre, String telefono, String deviceNumber) { 
   MyContact contact = MyContact(
     numUsuario: deviceNumber, 
     nombre: nombre, 
     telefono: telefono,
     borrado: 0,
   );
-  contactFormProvider.contactServices.createContact(contact);
+
+  return contact;
 }
 
 // Método que se usa cuando se accede a la aplicación 
-// desde el registro
+// desde el registro.
 // Compara los contactos del dispositivo con los
 // existentes en BBDD asociados al dispositivo
-// Si hay algún que no existe en BBDD lo sube
-void uploadContacts(List<Contact> contacts, ContactFormProvider contactFormProvider, String deviceNumber){
+// y los añade a una lista
+List<MyContact> creatMyContactsList(List<Contact> contacts, ContactFormProvider contactFormProvider, String deviceNumber, String updatedContacts){
+  List<MyContact> myContactsList = [];
 
-  for (var i = 0; i < contacts.length; i++) {
-    bool contactExists = false;
+  if(updatedContacts.isEmpty) {
+    for (var i = 0; i < contacts.length; i++) {
+      bool contactExists = false;
 
-    for (var j = 0; j < contactFormProvider.contactServices.contacts.length; j++) {
-      if (contacts[i].phones![0].value! == contactFormProvider.contactServices.contacts[j].telefono &&
-          deviceNumber == contactFormProvider.contactServices.contacts[j].numUsuario) {
-        contactExists = true;
-        break;
+      for (var j = 0; j < contactFormProvider.contactServices.contacts.length; j++) {
+        if (contacts[i].phones![0].value! == contactFormProvider.contactServices.contacts[j].telefono &&
+            deviceNumber == contactFormProvider.contactServices.contacts[j].numUsuario) {
+          contactExists = true;
+          break;
+        }
       }
-    }
 
-    if (!contactExists) {
-      uploadContact(contactFormProvider, contacts[i].displayName!, contacts[i].phones![0].value!, deviceNumber);
+      if (!contactExists) {
+        myContactsList.add(createMyContact(contactFormProvider, contacts[i].displayName!, contacts[i].phones![0].value!, deviceNumber));
+      }
     }
   }
 
-  //
+  UpdatedContacts.setUpdatedContacts('Se han sudido los contactos');
+  return myContactsList;
+}
+
+// Método que recorre una lista de tipo 
+// MyContact y los sube a BBDD
+void uploadContacts(List<MyContact> myContactsList, ContactFormProvider contactsProvider){
+  // En caso de haberlos, eliminamos los elementos duplicados
+  myContactsList = myContactsList.toSet().toList();
+
+  // Recorremos la lista y subimos el contacto de la iteración
+  for (var i = 0; i < myContactsList.length; i++) {
+    contactsProvider.contactServices.createContact(myContactsList[i]);
+  }
 }
 
 // Método para filtrar los contactos de BBDD
 // devolviendo una lista con los contactos
 // asociados al dispositivo
-List<MyContact> filterContacts(ContactFormProvider contactFormProvider, String deviceNumber) {
+List<MyContact> filterContacts(ContactFormProvider contactFormProvider, String deviceNumber ) {
   List<MyContact> filteredContacts = [];
 
   for (var i = 0; i < contactFormProvider.contactServices.contacts.length; i++) {
@@ -374,9 +433,11 @@ List<MyContact> filterContacts(ContactFormProvider contactFormProvider, String d
       filteredContacts.add(contactFormProvider.contactServices.contacts[i]);
     }
   }
-
+  
   // Ordenamos los contactos por orden alfabético
-  filteredContacts.sort((a, b) => a.nombre.compareTo(b.nombre),);
+  filteredContacts.sort((a, b) => a.nombre.compareTo(b.nombre));
+  // En caso de haberlos, eliminamos los elementos duplicados
+  filteredContacts = filteredContacts.toSet().toList();
 
   return filteredContacts;
 }

@@ -23,7 +23,7 @@ class LoginRegisterScreen extends StatelessWidget {
       future: DeviceNumber.getNumber(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          // Valor obtenido del Future
+          // Almacenamos el valor obtenido del Future
           String deviceNumber = snapshot.data!;
           Widget widget;
 
@@ -38,15 +38,15 @@ class LoginRegisterScreen extends StatelessWidget {
               usersProvider: usersProvider,
             );
           }
-      
+
           return widget;
         } else if (snapshot.hasError) {
-          // Manejar el error en caso de que ocurra
+          // Manejamos el error en caso de que este ocurra
           return const ErrorScreen(
             errorCode: 1
           );
         } else {
-          // Muestra un indicador de carga mientras se espera la respuesta
+          // Mostramos un indicador de carga mientras se espera la respuesta
           return const CircularProgressIndicator();
         }
       },
@@ -54,6 +54,7 @@ class LoginRegisterScreen extends StatelessWidget {
   }
 }
 
+// Login automático de la aplicación
 class Login extends StatelessWidget {
   const Login({
     Key? key,
@@ -68,12 +69,16 @@ class Login extends StatelessWidget {
   Widget build(BuildContext context) {
     bool isValid = usersProvider.isValidLogin(deviceNumber);
 
+    // Comprobamos si el número del dispositivo es válido
     if (isValid) {
+      // Si el número de dispositivo es válido, 
+      // almacenamos el usuario en las variables
+      // globales y redirigimos a ContactsScreen
       GlobalVariables.user = usersProvider.getUser(deviceNumber);
-      // Si el número de dispositivo es válido, redirige a la pantalla ContactScreen
       return const ContactsScreen();
     } else {
-      // Si el número de dispositivo no es válido, muestra un mensaje de error en pantalla
+      // Si el número de dispositivo no es válido, 
+      // mostramos un mensaje de error en pantalla
       return const ErrorScreen(
         errorCode: 2
       );
@@ -81,7 +86,7 @@ class Login extends StatelessWidget {
   }
 }
 
-
+// Panta de Registro
 class Register extends StatelessWidget {
   const Register({
     Key? key,
@@ -99,10 +104,12 @@ class Register extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Contactos'),
       ),
+      // Formulario de registro
       body: Form(
         key: usersProvider.formKey,
         child: Column(
           children: [
+            // Campo para el teléfono
             TextFormField(
               keyboardType: TextInputType.phone,
               onChanged: (value) {
@@ -116,11 +123,17 @@ class Register extends StatelessWidget {
                 return null;
               },
             ),
+            // Botón para continuar
             ElevatedButton(
               onPressed: () async {
+                // Comprobamos si el formulario es válido
                 if (usersProvider.isValidForm()) {
+                  // Comprobamos si el número existe o no en BBDD
                   final isValidPhoneNumber = usersProvider.isValidRegister(phoneNumber);
                   switch (isValidPhoneNumber) {
+                    // Si no existe, establecemos los diferentes 
+                    // valores persistentes y variables globales
+                    // y creamos y subimos el usuario
                     case 0:
                       await DeviceNumber.setNumber(phoneNumber);
                       String pass = generateRandomString();
@@ -139,6 +152,9 @@ class Register extends StatelessWidget {
                         ),
                       );
                       break;
+                    // Si existe, obtenemos dicho usuario 
+                    // y establecemos los diferentes 
+                    // valores persistentes y variables globales
                     case 1:
                       PopUp.duplicatedMessage(context, 0).then((_) async {
                         User user = usersProvider.getUser(phoneNumber);
@@ -165,73 +181,7 @@ class Register extends StatelessWidget {
   }
 }
 
-// Pantalla creada para mostrar el error ocurrido
-class ErrorScreen extends StatelessWidget {
-  const ErrorScreen({
-    Key? key,
-    required this.errorCode,
-  }) : super(key: key);
-
-  final int errorCode;
-
-  @override
-  Widget build(BuildContext context) {
-
-    // Posibles códigos de errores:
-    // 1: El dato persistente de la aplicación no se ha cargado bien
-    // 2: El dato persistente almacenado en la aplicación 
-    //    no coincide con ninguno en Firebase
-
-    String errorMessage = '';
-
-    switch(errorCode) {
-      case 1:
-        errorMessage = 'Se ha producido un error al cargar '
-                        'el número de teléfono del dispositivo';
-        break;
-      case 2:
-        errorMessage = 'El número de teléfono del dispositivo '
-                        'no coincide con los existentes';
-        break;
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Contactos'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.only(
-                left: 16.0,
-                top: 24.0,
-                right: 16.0,
-              ),
-              child: Text(
-                'Se ha producido un error',
-                style: Theme.of(context).textTheme.headline6,
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.only(
-                left: 16.0,
-                top: 24.0,
-                right: 16.0,
-              ),
-              child: Text(
-                errorMessage,
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ]
-        )
-      )
-    );
-  }
-}
-
+// Método para generar una clave Random de 5 carácteres
 String generateRandomString() {
   final random = Random();
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';

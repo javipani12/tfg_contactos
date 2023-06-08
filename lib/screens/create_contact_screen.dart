@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:tfg_contactos/models/models.dart';
 import 'package:tfg_contactos/providers/providers.dart';
 import 'package:tfg_contactos/screens/screens.dart';
@@ -17,6 +18,7 @@ class CreateContactScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     GlobalKey<FormState> formKey = GlobalKey<FormState>();
+    UserLoginRegisterFormProvider usersProvider = Provider.of<UserLoginRegisterFormProvider>(context);
     String nombre = '', telefono = '';
     MyContact contact = MyContact(
       numUsuario: GlobalVariables.user.telefono, 
@@ -28,22 +30,22 @@ class CreateContactScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Crear Contacto'),
-        leading: IconButton(
-          onPressed: () {
-            contactsProvider.notifyChanges();
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ContactsScreen()
-              ),
-            );
-          },
-          icon: const Icon(Icons.arrow_back),
+        leading:AppBarWidgets.addAndProfileWidgets(
+          context, 
+          3, 
+          usersProvider, 
+          contactsProvider, 
+          GlobalVariables.user.telefono, 
+          GlobalVariables.filteredContacts,
+          contact
         ),
       ),
+      // Formulario para la creación de un contacto
       body: Form(
         key: formKey,
         child: Column(
           children: [
+            // Campo del nombre
             TextFormField(
               onChanged: (value) {
                 nombre = value;
@@ -56,6 +58,7 @@ class CreateContactScreen extends StatelessWidget {
                 return null;
               },
             ),
+            // Campo del teléfono
             TextFormField(
               keyboardType: TextInputType.phone,
               onChanged: (value) {
@@ -69,13 +72,16 @@ class CreateContactScreen extends StatelessWidget {
                 return null;
               },
             ),
+            // Botón para la creación del contacto
             ElevatedButton(
               onPressed: () async {
                 if (formKey.currentState?.validate() ?? false) {
                   int createContactState = comparePhoneNumber(filteredContacts, telefono);
+                  // Si ya existe el teléfono, mensaje de error
                   if ( createContactState == 1) {
                     PopUp.duplicatedMessage(context, 1);
                   } else {
+                    // En caso contrario, mensaje de todo correcto
                     PopUp.okMessage(context, 0).then((_) async {
                       contact.nombre = nombre;
                       contact.telefono = telefono;
@@ -83,14 +89,14 @@ class CreateContactScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ContactsScreen()
+                          builder: (context) => const ContactsScreen()
                         ),
                       );
                     });
                   }
                 }
               },
-              child: const Text('Continuar'),
+              child: const Text('Crear'),
             ),
           ],
         ),
@@ -99,6 +105,12 @@ class CreateContactScreen extends StatelessWidget {
   }
 }
 
+// Método que compara el número de teléfono del contacto
+// con los teléfonos de la lista de contactos filtrada
+// para el usuario.
+// Puede devolver dos estados:
+// 0: No existe
+// 1: Existe
 int comparePhoneNumber(List<MyContact> filteredContacts, String phoneNumber){
   int status = 0;
 
@@ -107,8 +119,6 @@ int comparePhoneNumber(List<MyContact> filteredContacts, String phoneNumber){
       status++;
     }
   }
-  
-  print(status);
 
   return status;
 }

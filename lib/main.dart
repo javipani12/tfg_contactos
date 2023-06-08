@@ -30,6 +30,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Contactos',
+      routes: {
+        'loginRegister':(context) => LoginRegisterScreen(),
+      },
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),

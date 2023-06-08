@@ -44,7 +44,10 @@ class ContactFormProvider extends ChangeNotifier {
 
   // Método para comprobar si el contacto
   // ya existe en BBDD asociado a un usuario
-  // en concreto
+  // en concreto.
+  // Puede devolver 2 estados:
+  // 0: No existe en BBDD
+  // 1: Existe en BBDD
   int isValidContact(String deviceNumber, String newPhoneNumber){
     int state = 0;
 

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:tfg_contactos/models/models.dart';
 import 'package:tfg_contactos/providers/providers.dart';
-import 'package:tfg_contactos/screens/screens.dart';
 import 'package:tfg_contactos/themes/app_themes.dart';
 import 'package:provider/provider.dart';
-import 'package:tfg_contactos/widgets/global_variables.dart';
+import 'package:tfg_contactos/widgets/widgets.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({
@@ -20,36 +19,40 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     ContactFormProvider contactsProvider = Provider.of<ContactFormProvider>(context);
     User user = GlobalVariables.user;
+    MyContact contact = MyContact(
+      numUsuario: '', 
+      nombre: '', 
+      telefono: '', 
+      borrado: 0
+    ); 
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Perfil'),
-        leading: IconButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ContactsScreen()
-              ),
-            );
-          },
-          icon: const Icon(Icons.arrow_back),
+        // Añadimos el botón de retroceso
+        leading: AppBarWidgets.addAndProfileWidgets(
+          context, 
+          3, 
+          usersProvider, 
+          contactsProvider, 
+          GlobalVariables.user.telefono, 
+          GlobalVariables.filteredContacts,
+          contact
         ),
+        // Añadimos el botón de edición
         actions: [
-          IconButton(
-            onPressed: () {
-              final route = MaterialPageRoute(
-                builder: (context) => EditProfileScreen(
-                  usersProvider: usersProvider, 
-                  contactsProvider: contactsProvider,
-                  user: user,
-                ),
-              );
-              Navigator.push(context, route);
-            },
-            icon: const Icon(Icons.edit),
+          AppBarWidgets.addAndProfileWidgets(
+            context, 
+            5, 
+            usersProvider, 
+            contactsProvider, 
+            GlobalVariables.user.telefono, 
+            GlobalVariables.filteredContacts,
+            contact
           ),
         ],
       ),
+      // Contenido de la pantalla
       body: _ProfileScreenBody(user: user),
     );
   }
@@ -57,7 +60,6 @@ class ProfileScreen extends StatelessWidget {
 
 class _ProfileScreenBody extends StatelessWidget {
   const _ProfileScreenBody({
-    super.key,
     required this.user,
   });
 
@@ -70,6 +72,7 @@ class _ProfileScreenBody extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 20),
+          // Texto del usuario
           Container(
             alignment: AlignmentDirectional.center,
             padding: const EdgeInsets.only(top: 10, bottom: 30, left: 5),
@@ -81,6 +84,7 @@ class _ProfileScreenBody extends StatelessWidget {
               ),
             ),
           ),
+          // Foto del usuario
           const Center(
             child: CircleAvatar(
               maxRadius: 70,
@@ -95,8 +99,9 @@ class _ProfileScreenBody extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Icono más texto del teléfono
                 ListTile(
-                  leading: const Icon(Icons.person),
+                  leading: const Icon(Icons.phone),
                   title: Text(
                     'Teléfono: ${user.telefono}',
                     style: const TextStyle(
@@ -104,8 +109,9 @@ class _ProfileScreenBody extends StatelessWidget {
                     ),
                   ),
                 ),
+                // Icono más texto de la clave
                 ListTile(
-                  leading: const Icon(Icons.email),
+                  leading: const Icon(Icons.password),
                   title: Text(
                     'Clave: ${user.clave}',
                     style: const TextStyle(

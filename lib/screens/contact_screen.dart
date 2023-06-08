@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:tfg_contactos/models/models.dart';
 import 'package:tfg_contactos/providers/providers.dart';
@@ -19,54 +18,45 @@ class ContactScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ContactFormProvider contactsProvider = Provider.of<ContactFormProvider>(context);
-
+    UserLoginRegisterFormProvider usersProvider = Provider.of<UserLoginRegisterFormProvider>(context);
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Perfil'),
-        leading: IconButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ContactsScreen()
-              ),
-            );
-          },
-          icon: const Icon(Icons.arrow_back),
+        // Flecha de retroceso
+        leading: AppBarWidgets.addAndProfileWidgets(
+          context, 
+          3, 
+          usersProvider, 
+          contactsProvider, 
+          GlobalVariables.user.telefono, 
+          GlobalVariables.filteredContacts,
+          contact
         ),
         actions: [
-          IconButton(
-            onPressed: () {
-              final route = MaterialPageRoute(
-                builder: (context) => EditContactScreen(
-                  contact: contact,
-                  contactsProvider: contactsProvider,
-                )
-              );
-              Navigator.push(context, route);
-            },
-            icon: const Icon(Icons.edit),
+          // Botón de editar
+          AppBarWidgets.addAndProfileWidgets(
+            context, 
+            4, 
+            usersProvider, 
+            contactsProvider, 
+            GlobalVariables.user.telefono, 
+            GlobalVariables.filteredContacts,
+            contact
           ),
-          IconButton(
-            onPressed: () {
-              PopUp.okMessage(context, 2).then((result) async {
-                if(result == 1) {
-                  contact.borrado = 1;
-                  contactsProvider.contactServices.updateContact(contact);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ContactsScreen()
-                    ),
-                  );
-                } else {
-                  Navigator.pop(context);
-                }
-              });
-            },
-            icon: const Icon(Icons.delete),
+          // Botón de borrado
+          AppBarWidgets.addAndProfileWidgets(
+            context, 
+            2, 
+            usersProvider, 
+            contactsProvider, 
+            GlobalVariables.user.telefono, 
+            GlobalVariables.filteredContacts,
+            contact
           ),
         ],
       ),
+      // Cuerpo de la ventana
       body: _ContactScreenBody(
         contact: contact,
         contactsProvider: contactsProvider,
@@ -80,26 +70,20 @@ class _ContactScreenBody extends StatelessWidget {
   final ContactFormProvider contactsProvider;
 
   const _ContactScreenBody({
-    super.key,
     required this.contact,
     required this.contactsProvider
   });
 
   @override
   Widget build(BuildContext context) {
-    String whatsappURL = '';
-
-    if(Platform.isIOS) {
-
-    } else {
-      whatsappURL = "https://wa.me/${contact.telefono}";
-    }
+    String whatsappURL = "https://wa.me/${contact.telefono}";
 
     return SingleChildScrollView(
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 20),
+        // Imagen del contacto
         const Center(
           child: CircleAvatar(
             maxRadius: 70,
@@ -114,6 +98,7 @@ class _ContactScreenBody extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Icono más texto del nombre
               ListTile(
                 leading: const Icon(Icons.person),
                 title: Text(
@@ -123,8 +108,9 @@ class _ContactScreenBody extends StatelessWidget {
                   ),
                 ),
               ),
+              // Icono más texto del teléfono
               ListTile(
-                leading: const Icon(Icons.email),
+                leading: const Icon(Icons.phone),
                 title: Text(
                   'Teléfono: ${contact.telefono}',
                   style: const TextStyle(
@@ -135,6 +121,7 @@ class _ContactScreenBody extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  // Icono para ir a Whatsapp
                   IconButton(
                     color: Colors.green,
                     iconSize: 50,
@@ -145,10 +132,11 @@ class _ContactScreenBody extends StatelessWidget {
                     ),
                     onPressed: () async => {
                       if(await canLaunchUrl(Uri.parse(whatsappURL))){
-                        await launchUrl(Uri.parse(whatsappURL),mode: LaunchMode.externalApplication)
+                        await launchUrl(Uri.parse(whatsappURL), mode: LaunchMode.externalApplication)
                       }
                     }
                   ),
+                  // Icono para la llamada
                   IconButton(
                     color: Colors.green,
                     iconSize: 50,

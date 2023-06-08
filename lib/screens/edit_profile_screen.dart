@@ -18,10 +18,10 @@ class EditProfileScreen extends StatefulWidget {
   final User user;
 
   @override
-  _EditProfileScreenState createState() => _EditProfileScreenState();
+  EditProfileScreenState createState() => EditProfileScreenState();
 }
 
-class _EditProfileScreenState extends State<EditProfileScreen> {
+class EditProfileScreenState extends State<EditProfileScreen> {
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   TextEditingController telefonoController = TextEditingController();
   TextEditingController claveController = TextEditingController();
@@ -46,10 +46,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       appBar: AppBar(
         title: const Text('Editar Perfil'),
       ),
+      // Formulario de edición
       body: Form(
         key: formKey,
         child: Column(
           children: [
+            // Campo para el teléfono
             TextFormField(
               controller: telefonoController,
               keyboardType: TextInputType.phone,
@@ -61,6 +63,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 return null;
               },
             ),
+            // Campo para la clave
             TextFormField(
               controller: claveController,
               decoration: const InputDecoration(hintText: 'Clave'),
@@ -71,6 +74,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 return null;
               },
             ),
+            // Botón para actualizar
             ElevatedButton(
               onPressed: () async {
                 if(formKey.currentState?.validate() ?? false) {
@@ -86,7 +90,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   }
                 }
               },
-              child: const Text('Continuar'),
+              child: const Text('Actualizar'),
             ),
           ],
         ),
@@ -94,23 +98,29 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
+  // Método local para actualizar el usuario actual, 
+  // estableciendo los nuevos valores tanto a dicho
+  // usuario como a los datos persistentes y a
+  // las variables globales.
   Future<void> updateEditedUser(BuildContext context) async {
-    widget.user.telefono = telefonoController.text;
-    widget.user.clave = claveController.text;
-    await DeviceNumber.setNumber(widget.user.telefono);
-    await DevicePass.setPass(widget.user.clave);
-    GlobalVariables.user = widget.user;
-    widget.usersProvider.usersServices.updateUser(widget.user);
-    updateContacNumUser(widget.contactsProvider);
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ProfileScreen(
-          usersProvider: widget.usersProvider,
-          deviceNumber: widget.user.telefono,
+    PopUp.okMessage(context, 2).then((_) async {
+      widget.user.telefono = telefonoController.text;
+      widget.user.clave = claveController.text;
+      await DeviceNumber.setNumber(widget.user.telefono);
+      await DevicePass.setPass(widget.user.clave);
+      GlobalVariables.user = widget.user;
+      widget.usersProvider.usersServices.updateUser(widget.user);
+      updateContacNumUser(widget.contactsProvider);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ProfileScreen(
+            usersProvider: widget.usersProvider,
+            deviceNumber: widget.user.telefono,
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 }
 
