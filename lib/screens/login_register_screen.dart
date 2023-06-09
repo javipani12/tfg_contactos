@@ -3,7 +3,6 @@ import 'package:tfg_contactos/models/models.dart';
 import 'dart:math';
 import 'package:tfg_contactos/providers/providers.dart';
 import 'package:tfg_contactos/screens/screens.dart';
-import 'package:tfg_contactos/themes/app_themes.dart';
 import 'package:provider/provider.dart';
 import 'package:tfg_contactos/widgets/widgets.dart';
 
@@ -109,19 +108,59 @@ class Register extends StatelessWidget {
         key: usersProvider.formKey,
         child: Column(
           children: [
+            const SizedBox(
+              height: 80,
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                vertical: 10,
+                horizontal: 30
+              ),
+              child: const Text(
+                'Bienvenido/a a la aplicación de contactos',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.only(
+                left: 10.0,
+                top: 30.0,
+                right: 10.0,
+                bottom: 10.0
+              ),
+              child: const Text(
+                'Introduzca su número de teléfono '
+                    'poder continuar',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.normal
+                ),
+              ),
+            ),
             // Campo para el teléfono
-            TextFormField(
-              keyboardType: TextInputType.phone,
-              onChanged: (value) {
-                phoneNumber = value;
-              },
-              decoration: const InputDecoration(hintText: 'Teléfono'),
-              validator: (value) {
-                if (value!.length != 9) {
-                  return 'La longitud debe ser 9';
-                }
-                return null;
-              },
+            Container(
+              padding: const EdgeInsets.symmetric(
+                vertical: 10,
+                horizontal: 20,
+              ),
+              child: TextFormField(
+                keyboardType: TextInputType.phone,
+                onChanged: (value) {
+                  phoneNumber = value;
+                },
+                decoration: const InputDecoration(hintText: 'Teléfono'),
+                validator: (value) {
+                  if (value!.length != 9) {
+                    return 'La longitud debe ser 9';
+                  }
+                  return null;
+                },
+              ),
             ),
             // Botón para continuar
             ElevatedButton(

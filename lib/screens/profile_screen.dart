@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tfg_contactos/models/models.dart';
 import 'package:tfg_contactos/providers/providers.dart';
-import 'package:tfg_contactos/themes/app_themes.dart';
 import 'package:provider/provider.dart';
 import 'package:tfg_contactos/widgets/widgets.dart';
 
@@ -71,13 +70,15 @@ class _ProfileScreenBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 20),
+          const SizedBox(
+            height: 40
+          ),
           // Texto del usuario
           Container(
             alignment: AlignmentDirectional.center,
             padding: const EdgeInsets.only(top: 10, bottom: 30, left: 5),
             child: const Text(
-              'Tu usuario',
+              'Tu perfil',
               style: TextStyle(
                 fontSize: 20.0,
                 fontWeight: FontWeight.bold,
@@ -97,7 +98,7 @@ class _ProfileScreenBody extends StatelessWidget {
           Container(
             margin: const EdgeInsets.only(left: 30.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // Icono más texto del teléfono
                 ListTile(
@@ -105,7 +106,7 @@ class _ProfileScreenBody extends StatelessWidget {
                   title: Text(
                     'Teléfono: ${user.telefono}',
                     style: const TextStyle(
-                      fontSize: 17.50
+                      fontSize: 18
                     ),
                   ),
                 ),
@@ -115,7 +116,7 @@ class _ProfileScreenBody extends StatelessWidget {
                   title: Text(
                     'Clave: ${user.clave}',
                     style: const TextStyle(
-                      fontSize: 17.50
+                      fontSize: 18
                     ),
                   ),
                 ),

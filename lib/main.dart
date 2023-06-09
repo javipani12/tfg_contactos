@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tfg_contactos/providers/providers.dart';
 import 'package:tfg_contactos/screens/screens.dart';
+import 'package:tfg_contactos/themes/app_themes.dart';
 
 void main() async {
   runApp(
@@ -16,7 +17,7 @@ void main() async {
           lazy: false,
         ),
       ],
-      child: MyApp(),
+      child: const MyApp(),
     ),
   );
 }
@@ -31,11 +32,9 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Contactos',
       routes: {
-        'loginRegister':(context) => LoginRegisterScreen(),
+        'loginRegister': (context) => LoginRegisterScreen(),
       },
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: AppThemes.lightTheme,
       home: const LoginRegisterScreen(),
     );
   }

@@ -9,6 +9,7 @@ import 'package:tfg_contactos/widgets/updated_contacts.dart';
 import 'package:tfg_contactos/widgets/widgets.dart';
 import 'package:tfg_contactos/models/models.dart';
 import 'package:restart_app/restart_app.dart';
+import 'dart:core';
 
 class ContactsScreen extends StatefulWidget {
   const ContactsScreen({Key? key,}) : super(key: key);
@@ -178,11 +179,48 @@ class RestartApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: TextButton(
-        onPressed: () {
-          Restart.restartApp(webOrigin: 'loginRegister');
-        },
-        child: const Text('Reiniciar'),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.only(
+              left: 16.0,
+              right: 16.0,
+            ),
+            child: Text(
+              'Contactos Cargados',
+              style: Theme.of(context).textTheme.headline6,
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.only(
+              left: 16.0,
+              top: 15.0,
+              right: 16.0,
+              bottom: 10,
+            ),
+            child: const Text(
+              'Ya se han cargado los contactos, pulse el '
+              'siguiente botón para reiniciar la aplicación',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.normal
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Restart.restartApp(webOrigin: 'loginRegister');
+            },
+            style: const ButtonStyle(
+              minimumSize: MaterialStatePropertyAll(
+                Size(220, 40)
+              )
+            ),
+            child: const Text('Reiniciar'),
+          ),
+        ],
       ),
     );
   }
@@ -202,9 +240,34 @@ class LoadContactsButton extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) => Center(
-    child: ElevatedButton(
-      onPressed: onPressed,
-      child: const Text('Cargar Contactos'),
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          padding: const EdgeInsets.only(
+            left: 10.0,
+            right: 10.0,
+            bottom: 20.0
+          ),
+          child: const Text(
+            'Pulse el siguiente botón para poder cargar los contactos',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.normal
+            ),
+          ),
+        ),
+        ElevatedButton(
+          onPressed: onPressed,
+          style: const ButtonStyle(
+            minimumSize: MaterialStatePropertyAll(
+              Size(220, 40)
+            )
+          ),
+          child: const Text('Cargar Contactos'),
+        ),
+      ],
     ),
   );
 }
@@ -251,6 +314,9 @@ class AskPermissionsButton extends StatelessWidget {
               'La aplicación necesita los permisos sobre '
                   'los contactos para funcionar correctamente.',
               textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16
+              ),
             ),
           ),
           // Si es la segunda vez que se deniegan los permisos
@@ -265,6 +331,9 @@ class AskPermissionsButton extends StatelessWidget {
               child: const Text(
                 'Necesitas dar los permisos desde los ajustes',
                 textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16
+                ),
               ),
             ),
           Container(
@@ -274,8 +343,16 @@ class AskPermissionsButton extends StatelessWidget {
               // En función de si es la primera o segunda que se deniegan los permisos,
               // aparecerá un mensaje u otro en el botón, así como el evento asociado
               // será diferente
-              child: Text(isPermanent ? 'Abrir Ajustes' : 'Cargar Contactos'),
+              style: const ButtonStyle(
+                minimumSize: MaterialStatePropertyAll(
+                  Size(220, 40)
+                )
+              ),
               onPressed: () => isPermanent ? openAppSettings() : onPressed(),
+              // En función de si es la primera o segunda que se deniegan los permisos,
+              // aparecerá un mensaje u otro en el botón, así como el evento asociado
+              // será diferente
+              child: Text(isPermanent ? 'Abrir Ajustes' : 'Cargar Contactos'),
             ),
           ),
         ],
@@ -349,16 +426,59 @@ class ContactCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
-      color: Colors.amber,
-      child: Column(
+    return Container(
+      width: double.infinity,
+      height: 200,
+      margin: const EdgeInsets.all(10),
+      child: Stack(
+        alignment: Alignment.bottomCenter,
         children: [
-          Text(contact.nombre),
-          Text(contact.telefono),
+          ClipRRect(
+            clipBehavior: Clip.antiAlias,
+            borderRadius: BorderRadius.circular(20),
+            child: const FadeInImage(
+              placeholder: AssetImage('assets/user_profile_pic.png'), 
+              image: AssetImage('assets/user_profile_pic.png'),
+              width: 200,
+              height: 200,
+              fit: BoxFit.cover,
+            )
+          ),
+          Container(
+            padding: const EdgeInsets.only(top: 3, left: 3),
+            width: 200,
+            height: 35,
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 129, 163, 180),
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(20)
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.12),
+                  spreadRadius: 5,
+                  blurRadius: 10,
+                  offset: const Offset(0, 3), // Posición del sombreado
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '${contact.nombre} - ${contact.telefono}',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.black87,
+                    fontSize: 16
+                  ),
+                ),
+              ]
+            ),
+          ),
         ],
       ),
     );
@@ -385,6 +505,8 @@ MyContact createMyContact(ContactFormProvider contactFormProvider, String nombre
 // y los añade a una lista
 List<MyContact> creatMyContactsList(List<Contact> contacts, ContactFormProvider contactFormProvider, String deviceNumber, String updatedContacts){
   List<MyContact> myContactsList = [];
+  // Expresión regular para comprobar si el número tiene prefijo
+  RegExp pattern = RegExp(r'^\+[0-9]{2} ');
 
   if(updatedContacts.isEmpty) {
     for (var i = 0; i < contacts.length; i++) {
@@ -399,6 +521,12 @@ List<MyContact> creatMyContactsList(List<Contact> contacts, ContactFormProvider 
       }
 
       if (!contactExists) {
+        // Si tiene un prefijo lo eliminamos
+        if(pattern.hasMatch(contacts[i].phones![0].value!)) {
+          contacts[i].phones![0].value!.replaceAll(pattern, '');
+        }
+        // Eliminamos espacios en blanco
+        contacts[i].phones![0].value!.replaceAll(' ', '');
         myContactsList.add(createMyContact(contactFormProvider, contacts[i].displayName!, contacts[i].phones![0].value!, deviceNumber));
       }
     }

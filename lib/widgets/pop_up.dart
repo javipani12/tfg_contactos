@@ -34,6 +34,11 @@ class PopUp{
         actions: [
           ElevatedButton(
             onPressed: () => Navigator.pop(context),
+            style: const ButtonStyle(
+              minimumSize: MaterialStatePropertyAll(
+                Size(100, 40)
+              )
+            ),
             child: const Text('Continuar'),
           ),
         ],
@@ -82,6 +87,11 @@ class PopUp{
                 result = 1;
                 Navigator.pop(context, result);
               },
+              style: const ButtonStyle(
+                minimumSize: MaterialStatePropertyAll(
+                  Size(100, 40)
+                )
+              ),
               child: const Text('Continuar'),
             )
           else
@@ -94,6 +104,11 @@ class PopUp{
                     result = 0;
                     Navigator.pop(context, result);
                   },
+                  style: const ButtonStyle(
+                    minimumSize: MaterialStatePropertyAll(
+                      Size(100, 40)
+                    )
+                  ),
                   child: const Text('Cancelar'),
                 ),
                 const SizedBox(
@@ -105,6 +120,11 @@ class PopUp{
                     result = 1;
                     Navigator.pop(context, result);
                   },
+                  style: const ButtonStyle(
+                    minimumSize: MaterialStatePropertyAll(
+                      Size(100, 40)
+                    )
+                  ),
                   child: const Text('Confirmar'),
                 ),
               ],

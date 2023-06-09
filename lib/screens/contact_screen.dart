@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tfg_contactos/models/models.dart';
 import 'package:tfg_contactos/providers/providers.dart';
-import 'package:tfg_contactos/screens/screens.dart';
 import 'package:tfg_contactos/widgets/widgets.dart';
-import 'package:tfg_contactos/themes/app_themes.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
@@ -12,6 +10,7 @@ class ContactScreen extends StatelessWidget {
   final MyContact contact;
 
   const ContactScreen({
+    super.key, 
     required this.contact,
   });
 
@@ -22,7 +21,7 @@ class ContactScreen extends StatelessWidget {
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Perfil'),
+        title: Text('${contact.nombre}'),
         // Flecha de retroceso
         leading: AppBarWidgets.addAndProfileWidgets(
           context, 
@@ -104,7 +103,7 @@ class _ContactScreenBody extends StatelessWidget {
                 title: Text(
                   'Nombre: ${contact.nombre}',
                   style: const TextStyle(
-                    fontSize: 17.50
+                    fontSize: 16
                   ),
                 ),
               ),
@@ -114,38 +113,67 @@ class _ContactScreenBody extends StatelessWidget {
                 title: Text(
                   'Teléfono: ${contact.telefono}',
                   style: const TextStyle(
-                    fontSize: 17.50
+                    fontSize: 16
                   ),
                 ),
               ),
+              const SizedBox(
+                height: 30,
+              ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
+                  const SizedBox(
+                    width: 30,
+                  ),
                   // Icono para ir a Whatsapp
-                  IconButton(
-                    color: Colors.green,
-                    iconSize: 50,
-                    icon: const ImageIcon(
-                      NetworkImage(
-                        'https://i.pinimg.com/originals/90/22/c3/9022c3da331305796ded3dda4c619df0.png'
+                  Column(
+                    children: [
+                      const Text(
+                        'Ir a Whatsapp',
+                        style: TextStyle(
+                          fontSize: 16
+                        ),
                       ),
-                    ),
-                    onPressed: () async => {
-                      if(await canLaunchUrl(Uri.parse(whatsappURL))){
-                        await launchUrl(Uri.parse(whatsappURL), mode: LaunchMode.externalApplication)
-                      }
-                    }
+                      IconButton(
+                        color: Colors.green,
+                        iconSize: 50,
+                        icon: const ImageIcon(
+                          NetworkImage(
+                            'https://i.pinimg.com/originals/90/22/c3/9022c3da331305796ded3dda4c619df0.png'
+                          ),
+                        ),
+                        onPressed: () async => {
+                          if(await canLaunchUrl(Uri.parse(whatsappURL))){
+                            await launchUrl(Uri.parse(whatsappURL), mode: LaunchMode.externalApplication)
+                          }
+                        }
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    width: 60,
                   ),
                   // Icono para la llamada
-                  IconButton(
-                    color: Colors.green,
-                    iconSize: 50,
-                    icon: const Icon(Icons.phone),
-                    onPressed: () async => {
-                      await FlutterPhoneDirectCaller.callNumber(
-                        contact.telefono
+                  Column(
+                    children: [
+                      const Text(
+                        'Llamar',
+                        style: TextStyle(
+                          fontSize: 16
+                        ),
                       ),
-                    }
+                      IconButton(
+                        color: Colors.green,
+                        iconSize: 50,
+                        icon: const Icon(Icons.phone),
+                        onPressed: () async => {
+                          await FlutterPhoneDirectCaller.callNumber(
+                            contact.telefono
+                          ),
+                        }
+                      ),
+                    ],
                   ),
                 ],
               ),

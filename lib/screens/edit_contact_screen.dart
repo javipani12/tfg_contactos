@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:tfg_contactos/models/models.dart';
 import 'package:tfg_contactos/providers/providers.dart';
 import 'package:tfg_contactos/screens/screens.dart';
-import 'package:tfg_contactos/themes/app_themes.dart';
 import 'package:tfg_contactos/widgets/widgets.dart';
 
 class EditContactScreen extends StatefulWidget {
@@ -50,28 +49,60 @@ class _EditContactScreenState extends State<EditContactScreen> {
         key: formKey,
         child: Column(
           children: [
+            const SizedBox(
+              height: 20,
+            ),
+            Container(
+              padding: const EdgeInsets.only(
+                left: 10.0,
+                top: 30.0,
+                right: 10.0,
+                bottom: 10.0
+              ),
+              child: const Text(
+                'Modifica el Nombre o el Teléfono del contacto',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold
+                ),
+              ),
+            ),
             // Campo para el nombre
-            TextFormField(
-              controller: nombreController,
-              decoration: const InputDecoration(hintText: 'Nombre'),
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'El nombre no puede estar vacío';
-                }
-                return null;
-              },
+            Container(
+              padding: const EdgeInsets.symmetric(
+                vertical: 20,
+                horizontal: 20,
+              ),
+              child: TextFormField(
+                controller: nombreController,
+                decoration: const InputDecoration(hintText: 'Nombre'),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'El nombre no puede estar vacío';
+                  }
+                  return null;
+                },
+              ),
             ),
             // Campo para el teléfono
-            TextFormField(
-              controller: telefonoController,
-              keyboardType: TextInputType.phone,
-              decoration: const InputDecoration(hintText: 'Teléfono'),
-              validator: (value) {
-                if (value!.length != 9) {
-                  return 'La longitud debe ser 9';
-                }
-                return null;
-              },
+            Container(
+              padding: const EdgeInsets.only(
+                left: 20,
+                right: 20,
+                bottom: 20,
+              ),
+              child: TextFormField(
+                controller: telefonoController,
+                keyboardType: TextInputType.phone,
+                decoration: const InputDecoration(hintText: 'Teléfono'),
+                validator: (value) {
+                  if (value!.length != 9) {
+                    return 'La longitud debe ser 9';
+                  }
+                  return null;
+                },
+              ),
             ),
             // Botón para actualizar el contacto 
             ElevatedButton(
@@ -99,6 +130,11 @@ class _EditContactScreenState extends State<EditContactScreen> {
                   }
                 }
               },
+              style: const ButtonStyle(
+                minimumSize: MaterialStatePropertyAll(
+                  Size(220, 40)
+                )
+              ),
               child: const Text('Actualizar'),
             ),
           ],
@@ -115,7 +151,7 @@ class _EditContactScreenState extends State<EditContactScreen> {
     PopUp.okMessage(context, 1).then((_) async {
       widget.contact.nombre = nombreController.text;
       widget.contact.telefono = telefonoController.text;
-      widget.contactsProvider.contactServices.updateContact(widget.contact);
+      await widget.contactsProvider.contactServices.updateContact(widget.contact);
       Navigator.push(
         context,
         MaterialPageRoute(

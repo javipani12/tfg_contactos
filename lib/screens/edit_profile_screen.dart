@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:tfg_contactos/models/models.dart';
 import 'package:tfg_contactos/providers/providers.dart';
 import 'package:tfg_contactos/screens/screens.dart';
-import 'package:tfg_contactos/themes/app_themes.dart';
 import 'package:tfg_contactos/widgets/widgets.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -51,28 +50,60 @@ class EditProfileScreenState extends State<EditProfileScreen> {
         key: formKey,
         child: Column(
           children: [
+            const SizedBox(
+              height: 20,
+            ),
+            Container(
+              padding: const EdgeInsets.only(
+                left: 10.0,
+                top: 30.0,
+                right: 10.0,
+                bottom: 10.0
+              ),
+              child: const Text(
+                'Modifica el Teléfono o la Clave de tu perfil',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold
+                ),
+              ),
+            ),
             // Campo para el teléfono
-            TextFormField(
-              controller: telefonoController,
-              keyboardType: TextInputType.phone,
-              decoration: const InputDecoration(hintText: 'Teléfono'),
-              validator: (value) {
-                if (value!.length != 9) {
-                  return 'La longitud debe ser 9';
-                }
-                return null;
-              },
+            Container(
+              padding: const EdgeInsets.symmetric(
+                vertical: 20,
+                horizontal: 20,
+              ),
+              child: TextFormField(
+                controller: telefonoController,
+                keyboardType: TextInputType.phone,
+                decoration: const InputDecoration(hintText: 'Teléfono'),
+                validator: (value) {
+                  if (value!.length != 9) {
+                    return 'La longitud debe ser 9';
+                  }
+                  return null;
+                },
+              ),
             ),
             // Campo para la clave
-            TextFormField(
-              controller: claveController,
-              decoration: const InputDecoration(hintText: 'Clave'),
-              validator: (value) {
-                if (value!.length != 5) {
-                  return 'La longitud debe ser 5';
-                }
-                return null;
-              },
+            Container(
+              padding: const EdgeInsets.only(
+                left: 20,
+                right: 20,
+                bottom: 20,
+              ),
+              child: TextFormField(
+                controller: claveController,
+                decoration: const InputDecoration(hintText: 'Clave'),
+                validator: (value) {
+                  if (value!.length != 5) {
+                    return 'La longitud debe ser 5';
+                  }
+                  return null;
+                },
+              ),
             ),
             // Botón para actualizar
             ElevatedButton(
@@ -90,6 +121,11 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                   }
                 }
               },
+              style: const ButtonStyle(
+                minimumSize: MaterialStatePropertyAll(
+                  Size(220, 40)
+                )
+              ),
               child: const Text('Actualizar'),
             ),
           ],
@@ -109,7 +145,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
       await DeviceNumber.setNumber(widget.user.telefono);
       await DevicePass.setPass(widget.user.clave);
       GlobalVariables.user = widget.user;
-      widget.usersProvider.usersServices.updateUser(widget.user);
+      await widget.usersProvider.usersServices.updateUser(widget.user);
       updateContacNumUser(widget.contactsProvider);
       Navigator.push(
         context,

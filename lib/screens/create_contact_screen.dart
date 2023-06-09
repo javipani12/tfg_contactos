@@ -3,10 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:tfg_contactos/models/models.dart';
 import 'package:tfg_contactos/providers/providers.dart';
 import 'package:tfg_contactos/screens/screens.dart';
-import 'package:tfg_contactos/themes/app_themes.dart';
 import 'package:tfg_contactos/widgets/widgets.dart';
 
-class CreateContactScreen extends StatelessWidget {
+class CreateContactScreen extends StatefulWidget {
   const CreateContactScreen({Key? key,
     required this.contactsProvider,
     required this.filteredContacts,
@@ -14,6 +13,22 @@ class CreateContactScreen extends StatelessWidget {
 
   final ContactFormProvider contactsProvider;
   final List<MyContact> filteredContacts;
+
+  @override
+  State<CreateContactScreen> createState() => _CreateContactScreenState();
+}
+
+class _CreateContactScreenState extends State<CreateContactScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +49,7 @@ class CreateContactScreen extends StatelessWidget {
           context, 
           3, 
           usersProvider, 
-          contactsProvider, 
+          widget.contactsProvider, 
           GlobalVariables.user.telefono, 
           GlobalVariables.filteredContacts,
           contact
@@ -45,63 +60,109 @@ class CreateContactScreen extends StatelessWidget {
         key: formKey,
         child: Column(
           children: [
+            const SizedBox(
+              height: 20,
+            ),
+            Container(
+              padding: const EdgeInsets.only(
+                left: 10.0,
+                top: 30.0,
+                right: 10.0,
+                bottom: 10.0
+              ),
+              child: const Text(
+                'Introduzca en los siguientes campos el Nombre '
+                'y el Teléfono del contacto a crear',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold
+                ),
+              ),
+            ),
             // Campo del nombre
-            TextFormField(
-              onChanged: (value) {
-                nombre = value;
-              },
-              decoration: const InputDecoration(hintText: 'Nombre'),
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'El nombre no puede estar vacío';
-                }
-                return null;
-              },
+            Container(
+              padding: const EdgeInsets.symmetric(
+                vertical: 20,
+                horizontal: 20,
+              ),
+              child: TextFormField(
+                onChanged: (value) {
+                  nombre = value;
+                },
+                decoration: const InputDecoration(hintText: 'Nombre'),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'El nombre no puede estar vacío';
+                  }
+                  return null;
+                },
+              ),
             ),
             // Campo del teléfono
-            TextFormField(
-              keyboardType: TextInputType.phone,
-              onChanged: (value) {
-                telefono = value;
-              },
-              decoration: const InputDecoration(hintText: 'Teléfono'),
-              validator: (value) {
-                if (value!.length != 9) {
-                  return 'La longitud debe ser 9';
-                }
-                return null;
-              },
+            Container(
+              padding: const EdgeInsets.only(
+                left: 20,
+                right: 20,
+                bottom: 20,
+              ),
+              child: TextFormField(
+                keyboardType: TextInputType.phone,
+                onChanged: (value) {
+                  telefono = value;
+                },
+                decoration: const InputDecoration(hintText: 'Teléfono'),
+                validator: (value) {
+                  if (value!.length != 9) {
+                    return 'La longitud debe ser 9';
+                  }
+                  return null;
+                },
+              ),
             ),
             // Botón para la creación del contacto
             ElevatedButton(
               onPressed: () async {
                 if (formKey.currentState?.validate() ?? false) {
-                  int createContactState = comparePhoneNumber(filteredContacts, telefono);
+                  int createContactState = comparePhoneNumber(widget.filteredContacts, telefono);
                   // Si ya existe el teléfono, mensaje de error
                   if ( createContactState == 1) {
                     PopUp.duplicatedMessage(context, 1);
                   } else {
                     // En caso contrario, mensaje de todo correcto
-                    PopUp.okMessage(context, 0).then((_) async {
-                      contact.nombre = nombre;
-                      contact.telefono = telefono;
-                      contactsProvider.contactServices.createContact(contact);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ContactsScreen()
-                        ),
-                      );
-                    });
+                    createNewContact(context, contact, nombre, telefono);
                   }
                 }
               },
+              style: const ButtonStyle(
+                minimumSize: MaterialStatePropertyAll(
+                  Size(220, 40)
+                )
+              ),
               child: const Text('Crear'),
             ),
           ],
         ),
       ),
     );
+  }
+
+  // Método local para crear un nuevo contacto, 
+  // estableciendo los nuevos valores a los 
+  // datos persistentes y a las variables globales.
+  void createNewContact(BuildContext context, MyContact contact, String nombre, String telefono) {
+    PopUp.okMessage(context, 0).then((_) async {
+      contact.nombre = nombre;
+      contact.telefono = telefono;
+      await widget.contactsProvider.contactServices.createContact(contact);
+      widget.contactsProvider.notifyChanges();
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const ContactsScreen()
+        ),
+      );
+    });
   }
 }
 
