@@ -52,7 +52,8 @@ class _CreateContactScreenState extends State<CreateContactScreen> {
           widget.contactsProvider, 
           GlobalVariables.user.telefono, 
           GlobalVariables.filteredContacts,
-          contact
+          contact,
+          ''
         ),
       ),
       // Formulario para la creación de un contacto
@@ -75,7 +76,7 @@ class _CreateContactScreenState extends State<CreateContactScreen> {
                 'y el Teléfono del contacto a crear',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 25,
                   fontWeight: FontWeight.bold
                 ),
               ),
@@ -90,7 +91,12 @@ class _CreateContactScreenState extends State<CreateContactScreen> {
                 onChanged: (value) {
                   nombre = value;
                 },
-                decoration: const InputDecoration(hintText: 'Nombre'),
+                decoration: const InputDecoration(
+                  hintText: 'Nombre'
+                ),
+                style: const TextStyle(
+                  fontSize: 20
+                ),
                 validator: (value) {
                   if (value!.isEmpty) {
                     return 'El nombre no puede estar vacío';
@@ -111,7 +117,12 @@ class _CreateContactScreenState extends State<CreateContactScreen> {
                 onChanged: (value) {
                   telefono = value;
                 },
-                decoration: const InputDecoration(hintText: 'Teléfono'),
+                decoration: const InputDecoration(
+                  hintText: 'Teléfono'
+                ),
+                style: const TextStyle(
+                  fontSize: 20
+                ),
                 validator: (value) {
                   if (value!.length != 9) {
                     return 'La longitud debe ser 9';
@@ -139,7 +150,12 @@ class _CreateContactScreenState extends State<CreateContactScreen> {
                   Size(220, 40)
                 )
               ),
-              child: const Text('Crear'),
+              child: const Text(
+                'Crear',
+                style: TextStyle(
+                  fontSize: 20
+                ),
+              ),
             ),
           ],
         ),

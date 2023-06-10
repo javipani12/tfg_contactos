@@ -49,9 +49,12 @@ class ErrorScreen extends StatelessWidget {
                 top: 24.0,
                 right: 16.0,
               ),
-              child: Text(
+              child: const Text(
                 'Se ha producido un error',
-                style: Theme.of(context).textTheme.headline6,
+                style: TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold
+                ),
               ),
             ),
             Container(
@@ -63,6 +66,9 @@ class ErrorScreen extends StatelessWidget {
               child: Text(
                 errorMessage,
                 textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 20
+                ),
               ),
             ),
           ]

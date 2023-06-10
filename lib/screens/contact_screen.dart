@@ -8,10 +8,12 @@ import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 
 class ContactScreen extends StatelessWidget {
   final MyContact contact;
+  final String userProfilePic;
 
   const ContactScreen({
     super.key, 
     required this.contact,
+    required this.userProfilePic,
   });
 
   @override
@@ -21,7 +23,7 @@ class ContactScreen extends StatelessWidget {
     
     return Scaffold(
       appBar: AppBar(
-        title: Text('${contact.nombre}'),
+        title: Text(contact.nombre),
         // Flecha de retroceso
         leading: AppBarWidgets.addAndProfileWidgets(
           context, 
@@ -30,7 +32,8 @@ class ContactScreen extends StatelessWidget {
           contactsProvider, 
           GlobalVariables.user.telefono, 
           GlobalVariables.filteredContacts,
-          contact
+          contact,
+          userProfilePic
         ),
         actions: [
           // Botón de editar
@@ -41,7 +44,8 @@ class ContactScreen extends StatelessWidget {
             contactsProvider, 
             GlobalVariables.user.telefono, 
             GlobalVariables.filteredContacts,
-            contact
+            contact,
+            userProfilePic
           ),
           // Botón de borrado
           AppBarWidgets.addAndProfileWidgets(
@@ -51,7 +55,8 @@ class ContactScreen extends StatelessWidget {
             contactsProvider, 
             GlobalVariables.user.telefono, 
             GlobalVariables.filteredContacts,
-            contact
+            contact,
+            userProfilePic
           ),
         ],
       ),
@@ -59,6 +64,7 @@ class ContactScreen extends StatelessWidget {
       body: _ContactScreenBody(
         contact: contact,
         contactsProvider: contactsProvider,
+        userProfilePic: userProfilePic,
       ),
     );
   }
@@ -67,10 +73,12 @@ class ContactScreen extends StatelessWidget {
 class _ContactScreenBody extends StatelessWidget {
   final MyContact contact;
   final ContactFormProvider contactsProvider;
+  final String userProfilePic;
 
   const _ContactScreenBody({
     required this.contact,
-    required this.contactsProvider
+    required this.contactsProvider,
+    required this.userProfilePic,
   });
 
   @override
@@ -81,13 +89,13 @@ class _ContactScreenBody extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 20),
+        const SizedBox(height: 40),
         // Imagen del contacto
-        const Center(
+        Center(
           child: CircleAvatar(
-            maxRadius: 70,
+            maxRadius: 80,
             backgroundImage: AssetImage(
-              'assets/user_profile_pic.png'
+              userProfilePic
             ),
           ),
         ),
@@ -99,21 +107,29 @@ class _ContactScreenBody extends StatelessWidget {
             children: [
               // Icono más texto del nombre
               ListTile(
-                leading: const Icon(Icons.person),
+                leading: const Icon(
+                  Icons.person,
+                  size: 40,
+                ),
                 title: Text(
                   'Nombre: ${contact.nombre}',
                   style: const TextStyle(
-                    fontSize: 16
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold
                   ),
                 ),
               ),
               // Icono más texto del teléfono
               ListTile(
-                leading: const Icon(Icons.phone),
+                leading: const Icon(
+                  Icons.phone,
+                  size: 40,
+                ),
                 title: Text(
                   'Teléfono: ${contact.telefono}',
                   style: const TextStyle(
-                    fontSize: 16
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold
                   ),
                 ),
               ),
@@ -132,12 +148,12 @@ class _ContactScreenBody extends StatelessWidget {
                       const Text(
                         'Ir a Whatsapp',
                         style: TextStyle(
-                          fontSize: 16
+                          fontSize: 20
                         ),
                       ),
                       IconButton(
                         color: Colors.green,
-                        iconSize: 50,
+                        iconSize: 70,
                         icon: const ImageIcon(
                           NetworkImage(
                             'https://i.pinimg.com/originals/90/22/c3/9022c3da331305796ded3dda4c619df0.png'
@@ -152,7 +168,7 @@ class _ContactScreenBody extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(
-                    width: 60,
+                    width: 30,
                   ),
                   // Icono para la llamada
                   Column(
@@ -160,12 +176,12 @@ class _ContactScreenBody extends StatelessWidget {
                       const Text(
                         'Llamar',
                         style: TextStyle(
-                          fontSize: 16
+                          fontSize: 20
                         ),
                       ),
                       IconButton(
                         color: Colors.green,
-                        iconSize: 50,
+                        iconSize: 70,
                         icon: const Icon(Icons.phone),
                         onPressed: () async => {
                           await FlutterPhoneDirectCaller.callNumber(

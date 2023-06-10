@@ -13,7 +13,7 @@ class PopUp{
     switch(state) {
       case 0:
         firstMessageLine = 'El número de teléfono ya existe, ';
-        message = 'se procederá a cargar los contactos que tiene asociados.';
+        message = 'se asociarán sus datos a tu perfil.';
         break;
       case 1:
         firstMessageLine = 'El número de teléfono ya existe, ';
@@ -27,9 +27,18 @@ class PopUp{
     return showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Número existente'),
+        title: const Text(
+          'Número existente',
+          style: TextStyle(
+            fontSize: 25,
+            fontWeight: FontWeight.bold
+          ),
+        ),
         content: Text('$firstMessageLine' 
-        '$message'
+          '$message',
+          style: const TextStyle(
+            fontSize: 20
+          ),
         ),
         actions: [
           ElevatedButton(
@@ -39,7 +48,12 @@ class PopUp{
                 Size(100, 40)
               )
             ),
-            child: const Text('Continuar'),
+            child: const Text(
+              'Continuar',
+              style: TextStyle(
+                fontSize: 20
+              ),
+            ),
           ),
         ],
       ),
@@ -78,8 +92,19 @@ class PopUp{
     return showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('${firstMessageLine}'),
-        content: Text('${message}'),
+        title: Text(
+          firstMessageLine,
+          style: const TextStyle(
+            fontSize: 25,
+            fontWeight: FontWeight.bold
+          ),
+        ),
+        content: Text(
+          message,
+          style: const TextStyle(
+            fontSize: 20
+          ),
+        ),
         actions: [
           if (state != 3)
             ElevatedButton(
@@ -92,7 +117,12 @@ class PopUp{
                   Size(100, 40)
                 )
               ),
-              child: const Text('Continuar'),
+              child: const Text(
+                'Continuar',
+                style: TextStyle(
+                  fontSize: 20
+                ),
+              ),
             )
           else
             Row(
@@ -109,7 +139,12 @@ class PopUp{
                       Size(100, 40)
                     )
                   ),
-                  child: const Text('Cancelar'),
+                  child: const Text(
+                    'Cancelar',
+                    style: TextStyle(
+                      fontSize: 20
+                    ),
+                  ),
                 ),
                 const SizedBox(
                   width: 10,
@@ -125,7 +160,12 @@ class PopUp{
                       Size(100, 40)
                     )
                   ),
-                  child: const Text('Confirmar'),
+                  child: const Text(
+                    'Confirmar',
+                    style: TextStyle(
+                      fontSize: 20
+                    ),
+                  ),
                 ),
               ],
             ),

@@ -64,7 +64,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                 'Modifica el Teléfono o la Clave de tu perfil',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 25,
                   fontWeight: FontWeight.bold
                 ),
               ),
@@ -78,7 +78,12 @@ class EditProfileScreenState extends State<EditProfileScreen> {
               child: TextFormField(
                 controller: telefonoController,
                 keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(hintText: 'Teléfono'),
+                decoration: const InputDecoration(
+                  hintText: 'Teléfono'
+                ),
+                style: const TextStyle(
+                  fontSize: 20
+                ),
                 validator: (value) {
                   if (value!.length != 9) {
                     return 'La longitud debe ser 9';
@@ -96,7 +101,12 @@ class EditProfileScreenState extends State<EditProfileScreen> {
               ),
               child: TextFormField(
                 controller: claveController,
-                decoration: const InputDecoration(hintText: 'Clave'),
+                decoration: const InputDecoration(
+                  hintText: 'Clave',
+                ),
+                style: const TextStyle(
+                  fontSize: 20
+                ),
                 validator: (value) {
                   if (value!.length != 5) {
                     return 'La longitud debe ser 5';
@@ -124,9 +134,14 @@ class EditProfileScreenState extends State<EditProfileScreen> {
               style: const ButtonStyle(
                 minimumSize: MaterialStatePropertyAll(
                   Size(220, 40)
-                )
+                ),
               ),
-              child: const Text('Actualizar'),
+              child: const Text(
+                'Actualizar',
+                style: TextStyle(
+                  fontSize: 20
+                ),
+              ),
             ),
           ],
         ),

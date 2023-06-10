@@ -36,7 +36,8 @@ class ProfileScreen extends StatelessWidget {
           contactsProvider, 
           GlobalVariables.user.telefono, 
           GlobalVariables.filteredContacts,
-          contact
+          contact,
+          ''
         ),
         // Añadimos el botón de edición
         actions: [
@@ -47,7 +48,8 @@ class ProfileScreen extends StatelessWidget {
             contactsProvider, 
             GlobalVariables.user.telefono, 
             GlobalVariables.filteredContacts,
-            contact
+            contact,
+            ''
           ),
         ],
       ),
@@ -78,9 +80,9 @@ class _ProfileScreenBody extends StatelessWidget {
             alignment: AlignmentDirectional.center,
             padding: const EdgeInsets.only(top: 10, bottom: 30, left: 5),
             child: const Text(
-              'Tu perfil',
+              'Tus datos',
               style: TextStyle(
-                fontSize: 20.0,
+                fontSize: 25,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -88,7 +90,7 @@ class _ProfileScreenBody extends StatelessWidget {
           // Foto del usuario
           const Center(
             child: CircleAvatar(
-              maxRadius: 70,
+              maxRadius: 80,
               backgroundImage: AssetImage(
                 'assets/user_profile_pic.png'
               ),
@@ -102,21 +104,29 @@ class _ProfileScreenBody extends StatelessWidget {
               children: [
                 // Icono más texto del teléfono
                 ListTile(
-                  leading: const Icon(Icons.phone),
+                  leading: const Icon(
+                    Icons.phone,
+                    size: 40,
+                  ),
                   title: Text(
                     'Teléfono: ${user.telefono}',
                     style: const TextStyle(
-                      fontSize: 18
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold
                     ),
                   ),
                 ),
                 // Icono más texto de la clave
                 ListTile(
-                  leading: const Icon(Icons.password),
+                  leading: const Icon(
+                    Icons.password,
+                    size: 40,
+                  ),
                   title: Text(
                     'Clave: ${user.clave}',
                     style: const TextStyle(
-                      fontSize: 18
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold
                     ),
                   ),
                 ),

@@ -16,6 +16,7 @@ class AppBarWidgets {
       String deviceNumber,
       List<MyContact> filteredContacts,
       MyContact contact,
+      String profilePic
   ) {
     Widget widget = Container();
 
@@ -92,6 +93,7 @@ class AppBarWidgets {
               builder: (context) => EditContactScreen(
                 contact: contact,
                 contactsProvider: contactsProvider,
+                profilePic: profilePic,
               )
             );
             Navigator.push(context, route);

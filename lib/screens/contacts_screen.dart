@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -113,8 +115,8 @@ class _ContactsScreenState extends State<ContactsScreen> with WidgetsBindingObse
           // decir que se accede desde el login
           if(hasPermission) {
             GlobalVariables.filteredContacts = filterContacts(contactsProvider, deviceNumber);
-            profile = AppBarWidgets.addAndProfileWidgets(context, 0, usersProvider, contactsProvider, deviceNumber, GlobalVariables.filteredContacts, contact);
-            addContact = AppBarWidgets.addAndProfileWidgets(context, 1, usersProvider, contactsProvider, deviceNumber, GlobalVariables.filteredContacts, contact);
+            profile = AppBarWidgets.addAndProfileWidgets(context, 0, usersProvider, contactsProvider, deviceNumber, GlobalVariables.filteredContacts, contact, '');
+            addContact = AppBarWidgets.addAndProfileWidgets(context, 1, usersProvider, contactsProvider, deviceNumber, GlobalVariables.filteredContacts, contact, '');
             widget = ContactsLoaded(contacts: GlobalVariables.filteredContacts);
           } else {
             // Si no tenemos los permisos con anterioridad
@@ -187,15 +189,18 @@ class RestartApp extends StatelessWidget {
               left: 16.0,
               right: 16.0,
             ),
-            child: Text(
+            child: const Text(
               'Contactos Cargados',
-              style: Theme.of(context).textTheme.headline6,
+              style: TextStyle(
+                fontSize: 25,
+                fontWeight: FontWeight.bold
+              ),
             ),
           ),
           Container(
             padding: const EdgeInsets.only(
               left: 16.0,
-              top: 15.0,
+              top: 20.0,
               right: 16.0,
               bottom: 10,
             ),
@@ -204,10 +209,12 @@ class RestartApp extends StatelessWidget {
               'siguiente botón para reiniciar la aplicación',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.normal
+                fontSize: 20,
               ),
             ),
+          ),
+          const SizedBox(
+            height: 15,
           ),
           ElevatedButton(
             onPressed: () {
@@ -218,7 +225,12 @@ class RestartApp extends StatelessWidget {
                 Size(220, 40)
               )
             ),
-            child: const Text('Reiniciar'),
+            child: const Text(
+              'Reiniciar',
+              style: TextStyle(
+                fontSize: 20
+              ),
+            ),
           ),
         ],
       ),
@@ -253,7 +265,7 @@ class LoadContactsButton extends StatelessWidget {
             'Pulse el siguiente botón para poder cargar los contactos',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 20,
               fontWeight: FontWeight.normal
             ),
           ),
@@ -265,7 +277,12 @@ class LoadContactsButton extends StatelessWidget {
               Size(220, 40)
             )
           ),
-          child: const Text('Cargar Contactos'),
+          child: const Text(
+            'Cargar Contactos',
+            style: TextStyle(
+              fontSize: 20
+            ),
+          ),
         ),
       ],
     ),
@@ -299,9 +316,12 @@ class AskPermissionsButton extends StatelessWidget {
               top: 24.0,
               right: 16.0,
             ),
-            child: Text(
+            child: const Text(
               'Permisos de Contactos',
-              style: Theme.of(context).textTheme.headline6,
+              style: TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold
+                ),
             ),
           ),
           Container(
@@ -315,7 +335,7 @@ class AskPermissionsButton extends StatelessWidget {
                   'los contactos para funcionar correctamente.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 16
+                fontSize: 20
               ),
             ),
           ),
@@ -332,7 +352,7 @@ class AskPermissionsButton extends StatelessWidget {
                 'Necesitas dar los permisos desde los ajustes',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 16
+                  fontSize: 20
                 ),
               ),
             ),
@@ -352,7 +372,12 @@ class AskPermissionsButton extends StatelessWidget {
               // En función de si es la primera o segunda que se deniegan los permisos,
               // aparecerá un mensaje u otro en el botón, así como el evento asociado
               // será diferente
-              child: Text(isPermanent ? 'Abrir Ajustes' : 'Cargar Contactos'),
+              child: Text(
+                isPermanent ? 'Abrir Ajustes' : 'Cargar Contactos',
+                style: const TextStyle(
+                  fontSize: 20
+                ),
+              ),
             ),
           ),
         ],
@@ -373,6 +398,7 @@ class ContactsLoaded extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Column(
       children: [
         if (contacts.isNotEmpty)
@@ -387,20 +413,8 @@ class ContactsLoaded extends StatelessWidget {
                 // El GestureDetector permite que podamos
                 // pulsar en cualquier parte del Card 
                 // (un Card en este caso)
-                return GestureDetector(
-                  child: ContactCard(contact: contact),
-                  onTap: () {
-                    // Al pulsar nos vamos a la pantalla
-                    // en concreto de cada contacto
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ContactScreen(
-                          contact: contact,
-                        )
-                      ),
-                    );
-                  },
+                return ContactCard(
+                  contact: contact
                 );
               },
             ),
@@ -426,60 +440,77 @@ class ContactCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: 200,
-      margin: const EdgeInsets.all(10),
-      child: Stack(
-        alignment: Alignment.bottomCenter,
-        children: [
-          ClipRRect(
-            clipBehavior: Clip.antiAlias,
-            borderRadius: BorderRadius.circular(20),
-            child: const FadeInImage(
-              placeholder: AssetImage('assets/user_profile_pic.png'), 
-              image: AssetImage('assets/user_profile_pic.png'),
-              width: 200,
-              height: 200,
-              fit: BoxFit.cover,
+    String profilePic = userProfilePic();
+
+    return GestureDetector(
+      onTap: () {
+        // Al pulsar nos vamos a la pantalla
+        // en concreto de cada contacto
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ContactScreen(
+              contact: contact,
+              userProfilePic: profilePic,
             )
           ),
-          Container(
-            padding: const EdgeInsets.only(top: 3, left: 3),
-            width: 200,
-            height: 35,
-            decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 129, 163, 180),
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(20)
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.12),
-                  spreadRadius: 5,
-                  blurRadius: 10,
-                  offset: const Offset(0, 3), // Posición del sombreado
-                ),
-              ],
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        height: 250,
+        margin: const EdgeInsets.all(10),
+        child: Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            ClipRRect(
+              clipBehavior: Clip.antiAlias,
+              borderRadius: BorderRadius.circular(20),
+              child: FadeInImage(
+                placeholder: const AssetImage('assets/user_profile_pic.png'), 
+                image: AssetImage(profilePic),
+                width: 250,
+                height: 250,
+                fit: BoxFit.cover,
+              )
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  '${contact.nombre} - ${contact.telefono}',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Colors.black87,
-                    fontSize: 16
+            Container(
+              padding: const EdgeInsets.only(top: 3, left: 3),
+              width: 250,
+              height: 50,
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 129, 163, 180),
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(20),
+                  bottomRight: Radius.circular(20)
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.12),
+                    spreadRadius: 5,
+                    blurRadius: 10,
+                    offset: const Offset(0, 3), // Posición del sombreado
                   ),
-                ),
-              ]
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    contact.nombre,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.black87,
+                      fontSize: 19
+                    ),
+                  ),
+                ]
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -505,8 +536,6 @@ MyContact createMyContact(ContactFormProvider contactFormProvider, String nombre
 // y los añade a una lista
 List<MyContact> creatMyContactsList(List<Contact> contacts, ContactFormProvider contactFormProvider, String deviceNumber, String updatedContacts){
   List<MyContact> myContactsList = [];
-  // Expresión regular para comprobar si el número tiene prefijo
-  RegExp pattern = RegExp(r'^\+[0-9]{2} ');
 
   if(updatedContacts.isEmpty) {
     for (var i = 0; i < contacts.length; i++) {
@@ -521,12 +550,6 @@ List<MyContact> creatMyContactsList(List<Contact> contacts, ContactFormProvider 
       }
 
       if (!contactExists) {
-        // Si tiene un prefijo lo eliminamos
-        if(pattern.hasMatch(contacts[i].phones![0].value!)) {
-          contacts[i].phones![0].value!.replaceAll(pattern, '');
-        }
-        // Eliminamos espacios en blanco
-        contacts[i].phones![0].value!.replaceAll(' ', '');
         myContactsList.add(createMyContact(contactFormProvider, contacts[i].displayName!, contacts[i].phones![0].value!, deviceNumber));
       }
     }
@@ -568,4 +591,15 @@ List<MyContact> filterContacts(ContactFormProvider contactFormProvider, String d
   filteredContacts = filteredContacts.toSet().toList();
 
   return filteredContacts;
+}
+
+String userProfilePic(){
+  final random = Random();
+  int numberOfPhotos = 4;
+  String name = 'assets/user_profile_picture';
+
+  final randomIndex = random.nextInt(numberOfPhotos) + 1;
+  name += '_$randomIndex.png';
+
+  return name;
 }

@@ -119,7 +119,7 @@ class Register extends StatelessWidget {
               child: const Text(
                 'Bienvenido/a a la aplicación de contactos',
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 25,
                   fontWeight: FontWeight.bold
                 ),
                 textAlign: TextAlign.center,
@@ -137,7 +137,7 @@ class Register extends StatelessWidget {
                     'poder continuar',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 20,
                   fontWeight: FontWeight.normal
                 ),
               ),
@@ -153,7 +153,12 @@ class Register extends StatelessWidget {
                 onChanged: (value) {
                   phoneNumber = value;
                 },
-                decoration: const InputDecoration(hintText: 'Teléfono'),
+                decoration: const InputDecoration(
+                  hintText: 'Teléfono'
+                ),
+                style: const TextStyle(
+                  fontSize: 20
+                ),
                 validator: (value) {
                   if (value!.length != 9) {
                     return 'La longitud debe ser 9';
@@ -161,6 +166,9 @@ class Register extends StatelessWidget {
                   return null;
                 },
               ),
+            ),
+            const SizedBox(
+              height: 10,
             ),
             // Botón para continuar
             ElevatedButton(
@@ -211,7 +219,17 @@ class Register extends StatelessWidget {
                   }
                 }
               },
-              child: const Text('Continuar'),
+              style: const ButtonStyle(
+                minimumSize: MaterialStatePropertyAll(
+                  Size(220, 40)
+                )
+              ),
+              child: const Text(
+                'Continuar',
+                style: TextStyle(
+                  fontSize: 20
+                ),
+              ),
             ),
           ],
         ),

@@ -8,11 +8,13 @@ class EditContactScreen extends StatefulWidget {
 
   final MyContact contact;
   final ContactFormProvider contactsProvider;
+  final String profilePic;
 
   const EditContactScreen({
     super.key, 
     required this.contact,
-    required this.contactsProvider
+    required this.contactsProvider,
+    required this.profilePic,
   });
 
   @override
@@ -63,7 +65,7 @@ class _EditContactScreenState extends State<EditContactScreen> {
                 'Modifica el Nombre o el Teléfono del contacto',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 25,
                   fontWeight: FontWeight.bold
                 ),
               ),
@@ -76,7 +78,12 @@ class _EditContactScreenState extends State<EditContactScreen> {
               ),
               child: TextFormField(
                 controller: nombreController,
-                decoration: const InputDecoration(hintText: 'Nombre'),
+                decoration: const InputDecoration(
+                  hintText: 'Nombre'
+                ),
+                style: const TextStyle(
+                  fontSize: 20
+                ),
                 validator: (value) {
                   if (value!.isEmpty) {
                     return 'El nombre no puede estar vacío';
@@ -95,7 +102,12 @@ class _EditContactScreenState extends State<EditContactScreen> {
               child: TextFormField(
                 controller: telefonoController,
                 keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(hintText: 'Teléfono'),
+                decoration: const InputDecoration(
+                  hintText: 'Teléfono'
+                ),
+                style: const TextStyle(
+                  fontSize: 20
+                ),
                 validator: (value) {
                   if (value!.length != 9) {
                     return 'La longitud debe ser 9';
@@ -135,7 +147,12 @@ class _EditContactScreenState extends State<EditContactScreen> {
                   Size(220, 40)
                 )
               ),
-              child: const Text('Actualizar'),
+              child: const Text(
+                'Actualizar',
+                style: TextStyle(
+                  fontSize: 20
+                ),
+              ),
             ),
           ],
         ),
@@ -156,7 +173,8 @@ class _EditContactScreenState extends State<EditContactScreen> {
         context,
         MaterialPageRoute(
           builder: (context) => ContactScreen(
-            contact: widget.contact
+            contact: widget.contact,
+            userProfilePic: widget.profilePic,
           )
         ),
       );
