@@ -503,7 +503,7 @@ class ContactCard extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       color: Colors.black87,
-                      fontSize: 26,
+                      fontSize: 19
                     ),
                   ),
                 ]

@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Contactos',
       routes: {
-        'loginRegister': (context) => const LoginRegisterScreen(),
+        'loginRegister': (context) => LoginRegisterScreen(),
       },
       theme: AppThemes.lightTheme,
       home: const LoginRegisterScreen(),
