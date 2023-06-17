@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 class AppThemes {
   static const Color primary = Colors.blueGrey;
 
-
   static final ThemeData lightTheme = ThemeData.light().copyWith(
     primaryColor: primary,
     appBarTheme: const AppBarTheme(
@@ -11,8 +10,7 @@ class AppThemes {
       elevation: 0,
     ),
 
-    // Botones de inicio de sesión, registro, reestablecer contraseña, continuar y llamar
-    // Por el momento
+    // Botones de Continuar, Actualizar, Cancelar y Confirmar
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: primary,
@@ -28,7 +26,7 @@ class AppThemes {
       iconColor: primary,
     ),
 
-    // TextButton Theme
+    // Botón de texto
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         foregroundColor: primary,
