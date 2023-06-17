@@ -35,7 +35,11 @@ class ErrorScreen extends StatelessWidget {
         break;
     }
 
-    return Center(
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Contactos'),
+      ),
+      body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -69,6 +73,7 @@ class ErrorScreen extends StatelessWidget {
             ),
           ]
         )
+      )
     );
   }
 }
